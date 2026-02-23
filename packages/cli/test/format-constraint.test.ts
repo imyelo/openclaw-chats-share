@@ -28,7 +28,7 @@ describe('ConstraintValidator', () => {
     expect(errorFields).toContain('sessionId')
   })
 
-  it('should validate string length', () => {
+  it('should validate minLength', () => {
     const constraint = createConstraint({
       validation: [{ field: 'title', rule: 'minLength', value: 5 }],
     })
@@ -41,6 +41,32 @@ describe('ConstraintValidator', () => {
     // Just right
     result = validator.validate({ title: 'Hello', date: '2026-01-01', sessionId: '123' })
     expect(result.valid).toBe(true)
+  })
+
+  it('should validate maxLength', () => {
+    const constraint = createConstraint({
+      validation: [{ field: 'title', rule: 'maxLength', value: 10 }],
+    })
+    const validator = createValidator(constraint)
+
+    // Too long
+    let result = validator.validate({ title: 'This is too long', date: '2026-01-01', sessionId: '123' })
+    expect(result.valid).toBe(false)
+
+    // Within limit
+    result = validator.validate({ title: 'Short', date: '2026-01-01', sessionId: '123' })
+    expect(result.valid).toBe(true)
+  })
+
+  it('should use custom error message when provided', () => {
+    const constraint = createConstraint({
+      validation: [{ field: 'title', rule: 'minLength', value: 10, message: 'Title is too short' }],
+    })
+    const validator = createValidator(constraint)
+
+    const result = validator.validate({ title: 'Hi', date: '2026-01-01', sessionId: '123' })
+    const titleError = result.errors.find(e => e.field === 'title' && e.message === 'Title is too short')
+    expect(titleError).toBeDefined()
   })
 
   it('should validate pattern', () => {

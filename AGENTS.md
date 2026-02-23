@@ -24,6 +24,7 @@ packages/
       lib/chats.ts         - Reads chats/ from monorepo root
       constants/index.ts   - Message type color/style maps
   create/        - create-openclaw-chats-share scaffolding tool
+    test/                  - Bun snapshot tests for scaffold output
 chats/           - Chat Markdown files (read by web package at build time)
 skills/          - Openclaw skills
 ```
@@ -40,9 +41,6 @@ bun run dev
 # Demo: Build static site
 bun run build
 
-# Demo: Deploy to GitHub Pages
-bun run deploy
-
 # Run all tests
 bun run test
 
@@ -51,6 +49,9 @@ cd packages/cli && bun test
 
 # Run a single test file
 cd packages/cli && bun test test/session-log-parser.test.ts
+
+# Run tests in create package only
+cd packages/create && bun test
 ```
 
 ## Packages
@@ -62,7 +63,7 @@ npx openclaw-chats-share parse <session.log> [-o output.md]
 
 ### openclaw-chats-share-web
 ```bash
-npx openclaw-chats-share-web dev|build|deploy
+npx openclaw-chats-share-web dev|build|preview
 ```
 
 ### create-openclaw-chats-share

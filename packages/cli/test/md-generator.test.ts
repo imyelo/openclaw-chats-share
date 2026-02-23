@@ -141,8 +141,82 @@ describe('MDGenerator', () => {
   })
 })
 
+describe('MDGenerator - additional cases', () => {
+  it('should render thinking blocks', () => {
+    const sessionWithThinking: ParsedSession = {
+      ...SAMPLE_SESSION,
+      messages: [
+        {
+          id: 'msg1',
+          timestamp: '2026-02-17T23:02:38.166Z',
+          role: 'assistant',
+          content: 'Final answer',
+          thinking: 'Let me think about this...',
+        },
+      ] as ParsedMessage[],
+    }
+
+    const generator = new MDGenerator(DEFAULT_CONSTRAINT, { includeFrontMatter: false })
+    const output = generator.generate(sessionWithThinking)
+
+    expect(output).toContain('💭')
+    expect(output).toContain('Let me think about this...')
+    expect(output).toContain('Final answer')
+  })
+
+  it('should render error tool result with ❌', () => {
+    const sessionWithError: ParsedSession = {
+      ...SAMPLE_SESSION,
+      messages: [
+        {
+          id: 'msg1',
+          timestamp: '2026-02-17T23:02:38.166Z',
+          role: 'toolResult',
+          content: 'File not found',
+          toolResult: {
+            toolCallId: 'call1',
+            toolName: 'read',
+            content: 'File not found',
+            isError: true,
+          },
+        },
+      ] as ParsedMessage[],
+    }
+
+    const generator = new MDGenerator(DEFAULT_CONSTRAINT, { includeFrontMatter: false })
+    const output = generator.generate(sessionWithError)
+
+    expect(output).toContain('❌ Result:')
+    expect(output).toContain('File not found')
+  })
+
+  it('should fall back to message count when messages have no user/assistant pair', () => {
+    const sessionEmpty: ParsedSession = {
+      ...SAMPLE_SESSION,
+      messages: [],
+    }
+
+    const generator = new MDGenerator(DEFAULT_CONSTRAINT, { includeFrontMatter: false })
+    const output = generator.generate(sessionEmpty)
+
+    expect(output).toContain('0 messages')
+  })
+})
+
 describe('generateMD convenience function', () => {
-  it('should be exported as convenience function', () => {
-    expect(typeof generateMD).toBe('function')
+  it('should write markdown to disk', async () => {
+    const { tmpdir } = await import('node:os')
+    const { join } = await import('node:path')
+    const { readFile, rm } = await import('node:fs/promises')
+
+    const outPath = join(tmpdir(), `md-generator-test-${Date.now()}.md`)
+    try {
+      await generateMD(SAMPLE_SESSION, DEFAULT_CONSTRAINT, outPath)
+      const content = await readFile(outPath, 'utf-8')
+      expect(content).toContain('---')
+      expect(content).toContain('## Conversation')
+    } finally {
+      await rm(outPath, { force: true })
+    }
   })
 })
