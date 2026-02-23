@@ -1,6 +1,6 @@
 export type { FormatConstraint } from './format-constraint/index'
-export { createConstraint, createValidator, DEFAULT_CONSTRAINT } from './format-constraint/index'
+export { ConstraintValidator, createConstraint, createValidator, DEFAULT_CONSTRAINT } from './format-constraint/index'
 export type { GeneratorOptions } from './md-generator/index'
 export { generateMD, MDGenerator } from './md-generator/index'
-export type { ParsedSession } from './session-log-parser/index'
+export type { ParsedMessage, ParsedSession } from './session-log-parser/index'
 export { LogParser, parseSession } from './session-log-parser/index'

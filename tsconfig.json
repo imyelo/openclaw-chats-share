@@ -3,5 +3,5 @@
   "compilerOptions": {
     "noEmit": true
   },
-  "include": ["tsconfig.json", "tsconfig.esm.json", "packages/*/src"]
+  "include": ["tsconfig.json", "tsconfig.esm.json", "packages/*/src", "packages/*/test"]
 }
