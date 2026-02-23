@@ -21,6 +21,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "prepublish": "bun run build",
     "test": "bun test"
   },
   "dependencies": {

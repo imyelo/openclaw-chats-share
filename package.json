@@ -11,13 +11,18 @@
     "format": "biome format --write .",
     "lint": "biome lint .",
     "test": "bun --bun test",
-    "prepare": "husky"
+    "prepare": "husky",
+    "release": "bun run test && bunx changeset publish",
+    "prepublish": "bun run build",
+    "changeset": "changeset",
+    "version": "bunx changeset version"
   },
   "dependencies": {
     "openclaw-chats-share-web": "workspace:*"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.4",
+    "@changesets/cli": "^2.29.8",
     "@yelo/biome-config": "^0.1.4",
     "@yelo/tsconfig": "^0.6.0",
     "husky": "^9.1.7"

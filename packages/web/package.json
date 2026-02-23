@@ -16,7 +16,8 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build"
+    "build": "astro build",
+    "prepublish": "bun run build"
   },
   "dependencies": {
     "astro": "^5.0.0",
