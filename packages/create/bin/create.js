@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-import { cpSync, mkdirSync, writeFileSync } from 'node:fs'
+import { cpSync, mkdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { parseArgs } from 'node:util'
 
@@ -17,18 +17,32 @@ console.log(`Creating project in: ${targetDir}`)
 
 mkdirSync(targetDir, { recursive: true })
 mkdirSync(join(targetDir, 'chats'), { recursive: true })
+mkdirSync(join(targetDir, '.vscode'), { recursive: true })
 
-// Copy templates
-cpSync(join(import.meta.dir, '../templates/package.json'), join(targetDir, 'package.json'))
-cpSync(join(import.meta.dir, '../templates/astro.config.mjs'), join(targetDir, 'astro.config.mjs'))
-cpSync(join(import.meta.dir, '../templates/uno.config.ts'), join(targetDir, 'uno.config.ts'))
-cpSync(join(import.meta.dir, '../templates/chats-share.toml'), join(targetDir, 'chats-share.toml'))
-cpSync(join(import.meta.dir, '../templates/chats/.gitkeep'), join(targetDir, 'chats/.gitkeep'))
+const tpl = (...parts) => join(import.meta.dir, '../templates', ...parts)
+const out = (...parts) => join(targetDir, ...parts)
 
-// Copy GitHub workflow
-const ghWorkflowDir = join(targetDir, '.github/workflows')
+// Core config
+cpSync(tpl('package.json'), out('package.json'))
+cpSync(tpl('astro.config.mjs'), out('astro.config.mjs'))
+cpSync(tpl('chats-share.toml'), out('chats-share.toml'))
+cpSync(tpl('chats/.gitkeep'), out('chats/.gitkeep'))
+
+// Lint
+cpSync(tpl('_biome.json'), out('biome.json'))
+
+// Editor / VCS
+cpSync(tpl('gitignore'), out('.gitignore'))
+cpSync(tpl('.editorconfig'), out('.editorconfig'))
+cpSync(tpl('.vscode/extensions.json'), out('.vscode/extensions.json'))
+
+// Docs
+cpSync(tpl('README.md'), out('README.md'))
+
+// GitHub workflow
+const ghWorkflowDir = out('.github/workflows')
 mkdirSync(ghWorkflowDir, { recursive: true })
-cpSync(join(import.meta.dir, '../templates/.github/workflows/deploy.yml'), join(ghWorkflowDir, 'deploy.yml'))
+cpSync(tpl('.github/workflows/deploy.yml'), out('.github/workflows/deploy.yml'))
 
 console.log('Project created!')
 console.log(`cd ${projectName || 'my-chats-project'}`)

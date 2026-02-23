@@ -7,8 +7,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
-    "deploy": "astro build && gh-pages -d dist"
+    "build": "astro build"
   },
   "dependencies": {
     "astro": "^5.0.0",
@@ -22,7 +21,6 @@
     "@astrojs/check": "^0.9.6",
     "@astrojs/react": "^4.4.2",
     "@types/react": "^19.2.14",
-    "gh-pages": "^6.0.0",
     "typescript": "^5.9.3"
   }
 }

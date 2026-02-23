@@ -6,6 +6,9 @@
     "clientKind": "git",
     "useIgnoreFile": true
   },
+  "javascript": {
+    "globals": ["Bun"]
+  },
   "files": {
     "includes": ["**/*.ts", "**/*.json", "**/*.md"],
     "ignoreUnknown": true

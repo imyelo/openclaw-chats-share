@@ -20,11 +20,10 @@ const commands = {
   dev: [astroBin, 'dev'],
   build: [astroBin, 'build'],
   preview: [astroBin, 'preview'],
-  deploy: [astroBin, 'build'],
 }
 
 if (!commands[command]) {
-  console.log('Commands: dev, build, preview, deploy')
+  console.log('Commands: dev, build, preview')
   process.exit(1)
 }
 

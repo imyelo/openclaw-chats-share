@@ -1,0 +1,12 @@
+# Dependencies
+node_modules
+
+# Secrets
+*.local
+
+# Editor
+.DS_Store
+
+# Build
+dist
+.astro

@@ -1,0 +1,3 @@
+{
+  "recommendations": ["biomejs.biome", "editorconfig.editorconfig", "tamasfe.even-better-toml", "unifiedjs.vscode-mdx"]
+}

@@ -1,0 +1,355 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`create-openclaw-chats-share should scaffold a named project with the correct files 1`] = `
+{
+  ".editorconfig": 
+"root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_width = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+"
+,
+  ".github/workflows/deploy.yml": 
+"name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+      - run: bun install
+      - run: bun run build
+      - uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: \${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+"
+,
+  ".gitignore": 
+"# Dependencies
+node_modules
+
+# Secrets
+*.local
+
+# Editor
+.DS_Store
+
+# Build
+dist
+.astro
+"
+,
+  ".vscode/extensions.json": 
+"{
+  "recommendations": ["biomejs.biome", "editorconfig.editorconfig", "tamasfe.even-better-toml", "unifiedjs.vscode-mdx"]
+}
+"
+,
+  "README.md": 
+"# my-chats-project
+
+Share your Openclaw conversations as a static site.
+
+## Setup
+
+\`\`\`bash
+bun install
+bun run dev
+\`\`\`
+
+## Commands
+
+| Command | Action |
+| --- | --- |
+| \`bun run dev\` | Start local dev server |
+| \`bun run build\` | Build static site to \`dist/\` |
+
+Deployment is automatic — push to \`main\` and GitHub Actions handles the build and publish.
+
+---
+
+Powered by [openclaw-chats-share](https://github.com/imyelo/openclaw-chats-share).
+"
+,
+  "astro.config.mjs": 
+"import { defineConfig } from 'astro/config';
+import react from '@astrojs/react';
+import UnoCSS from 'unocss/astro';
+
+export default defineConfig({
+  site: 'https://your-username.github.io',
+  integrations: [
+    UnoCSS({ injectReset: true }),
+    react()
+  ],
+  vite: {
+    css: {
+      modules: {
+        generateScopedName: "[name]__[local]___[hash:base64:5]",
+      }
+    }
+  },
+  output: 'static',
+  build: {
+    format: 'directory',
+  },
+});
+"
+,
+  "biome.json": 
+"{
+  "$schema": "https://biomejs.dev/schemas/2.4.4/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "formatter": {
+    "indentStyle": "space",
+    "indentWidth": 2
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    }
+  }
+}
+"
+,
+  "chats-share.toml": 
+"# chats-share.toml
+# Configuration for openclaw-chats-share-web.
+# Uncomment and edit the values below to customise the Astro build.
+#
+# For JS/TS-based config (e.g. to add Astro integrations), you can use
+# chats-share.ts instead of this file.
+
+# Full URL of your deployed site (used for canonical URLs, sitemaps, etc.)
+# site = "https://your-username.github.io"
+
+# Base path for your site.
+# Required for GitHub Pages project sites (e.g. "/your-repo-name").
+# base = "/"
+
+# Directory for static assets, relative to this file.
+# public_dir = "public"
+
+# Build output directory, relative to this file.
+# out_dir = "dist"
+
+# Advanced: pass any Astro config options directly.
+# These are merged with the built-in Astro configuration.
+# [astro]
+# trailingSlash = "always"
+# compressHTML = false
+"
+,
+  "chats/.gitkeep": "",
+  "package.json": 
+"{
+  "name": "my-chats-project",
+  "private": true,
+  "scripts": {
+    "dev": "openclaw-chats-share-web dev",
+    "build": "openclaw-chats-share-web build"
+  },
+  "dependencies": {
+    "openclaw-chats-share-web": "^1.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.4"
+  }
+}
+"
+,
+}
+`;
+
+exports[`create-openclaw-chats-share should use default project name when not specified 1`] = `
+{
+  ".editorconfig": 
+"root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_width = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+"
+,
+  ".github/workflows/deploy.yml": 
+"name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+      - run: bun install
+      - run: bun run build
+      - uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: \${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+"
+,
+  ".gitignore": 
+"# Dependencies
+node_modules
+
+# Secrets
+*.local
+
+# Editor
+.DS_Store
+
+# Build
+dist
+.astro
+"
+,
+  ".vscode/extensions.json": 
+"{
+  "recommendations": ["biomejs.biome", "editorconfig.editorconfig", "tamasfe.even-better-toml", "unifiedjs.vscode-mdx"]
+}
+"
+,
+  "README.md": 
+"# my-chats-project
+
+Share your Openclaw conversations as a static site.
+
+## Setup
+
+\`\`\`bash
+bun install
+bun run dev
+\`\`\`
+
+## Commands
+
+| Command | Action |
+| --- | --- |
+| \`bun run dev\` | Start local dev server |
+| \`bun run build\` | Build static site to \`dist/\` |
+
+Deployment is automatic — push to \`main\` and GitHub Actions handles the build and publish.
+
+---
+
+Powered by [openclaw-chats-share](https://github.com/imyelo/openclaw-chats-share).
+"
+,
+  "astro.config.mjs": 
+"import { defineConfig } from 'astro/config';
+import react from '@astrojs/react';
+import UnoCSS from 'unocss/astro';
+
+export default defineConfig({
+  site: 'https://your-username.github.io',
+  integrations: [
+    UnoCSS({ injectReset: true }),
+    react()
+  ],
+  vite: {
+    css: {
+      modules: {
+        generateScopedName: "[name]__[local]___[hash:base64:5]",
+      }
+    }
+  },
+  output: 'static',
+  build: {
+    format: 'directory',
+  },
+});
+"
+,
+  "biome.json": 
+"{
+  "$schema": "https://biomejs.dev/schemas/2.4.4/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "formatter": {
+    "indentStyle": "space",
+    "indentWidth": 2
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    }
+  }
+}
+"
+,
+  "chats-share.toml": 
+"# chats-share.toml
+# Configuration for openclaw-chats-share-web.
+# Uncomment and edit the values below to customise the Astro build.
+#
+# For JS/TS-based config (e.g. to add Astro integrations), you can use
+# chats-share.ts instead of this file.
+
+# Full URL of your deployed site (used for canonical URLs, sitemaps, etc.)
+# site = "https://your-username.github.io"
+
+# Base path for your site.
+# Required for GitHub Pages project sites (e.g. "/your-repo-name").
+# base = "/"
+
+# Directory for static assets, relative to this file.
+# public_dir = "public"
+
+# Build output directory, relative to this file.
+# out_dir = "dist"
+
+# Advanced: pass any Astro config options directly.
+# These are merged with the built-in Astro configuration.
+# [astro]
+# trailingSlash = "always"
+# compressHTML = false
+"
+,
+  "chats/.gitkeep": "",
+  "package.json": 
+"{
+  "name": "my-chats-project",
+  "private": true,
+  "scripts": {
+    "dev": "openclaw-chats-share-web dev",
+    "build": "openclaw-chats-share-web build"
+  },
+  "dependencies": {
+    "openclaw-chats-share-web": "^1.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.4"
+  }
+}
+"
+,
+}
+`;

@@ -7,7 +7,6 @@
   "scripts": {
     "dev": "openclaw-chats-share-web dev",
     "build": "openclaw-chats-share-web build || true",
-    "deploy": "openclaw-chats-share-web deploy",
     "test": "bun --bun test",
     "prepare": "husky"
   },

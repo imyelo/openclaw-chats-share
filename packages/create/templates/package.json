@@ -1,20 +1,14 @@
 {
   "name": "my-chats-project",
   "private": true,
-  "templateFiles": [
-    "package.json",
-    "astro.config.mjs",
-    "uno.config.ts",
-    "chats-share.toml",
-    ".github/workflows/deploy.yml",
-    "chats/.gitkeep"
-  ],
   "scripts": {
     "dev": "openclaw-chats-share-web dev",
-    "build": "openclaw-chats-share-web build",
-    "deploy": "openclaw-chats-share-web deploy"
+    "build": "openclaw-chats-share-web build"
   },
   "dependencies": {
     "openclaw-chats-share-web": "^1.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.4"
   }
 }
