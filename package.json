@@ -7,6 +7,9 @@
   "scripts": {
     "dev": "openclaw-chats-share-web dev",
     "build": "openclaw-chats-share-web build || true",
+    "typecheck": "tsc --noEmit",
+    "format": "biome format --write .",
+    "lint": "biome lint .",
     "test": "bun --bun test",
     "prepare": "husky"
   },
