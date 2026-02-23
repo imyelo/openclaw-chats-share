@@ -18,6 +18,7 @@ console.log(`Creating project in: ${targetDir}`)
 
 mkdirSync(targetDir, { recursive: true })
 mkdirSync(join(targetDir, 'chats'), { recursive: true })
+mkdirSync(join(targetDir, 'public'), { recursive: true })
 mkdirSync(join(targetDir, '.vscode'), { recursive: true })
 
 const tpl = (...parts) => join(dirname(fileURLToPath(import.meta.url)), '../templates', ...parts)
@@ -28,6 +29,7 @@ cpSync(tpl('package.json'), out('package.json'))
 cpSync(tpl('astro.config.mjs'), out('astro.config.mjs'))
 cpSync(tpl('chats-share.toml'), out('chats-share.toml'))
 cpSync(tpl('chats/.gitkeep'), out('chats/.gitkeep'))
+cpSync(tpl('public/.nojekyll'), out('public/.nojekyll'))
 
 // Lint
 cpSync(tpl('_biome.json'), out('biome.json'))
