@@ -88,7 +88,7 @@ describe('ConstraintValidator', () => {
     const validator = createValidator(DEFAULT_CONSTRAINT)
     const fields = validator.getMetadataFields()
 
-    expect(fields).toHaveLength(10)
+    expect(fields).toHaveLength(11)
     expect(fields[0].key).toBe('title')
   })
 
@@ -108,8 +108,8 @@ describe('ConstraintValidator', () => {
       metadata: [{ key: 'customField', type: 'string', required: false, description: 'Custom field' }],
     })
 
-    expect(extended.metadata).toHaveLength(11)
-    expect(extended.metadata[10].key).toBe('customField')
+    expect(extended.metadata).toHaveLength(12)
+    expect(extended.metadata[11].key).toBe('customField')
   })
 })
 
@@ -119,7 +119,7 @@ describe('createConstraint', () => {
 
     expect(constraint.version).toBe('1.0')
     expect(constraint.name).toBe('session-export')
-    expect(constraint.metadata).toHaveLength(10)
+    expect(constraint.metadata).toHaveLength(11)
   })
 
   it('should allow custom override', () => {
@@ -129,6 +129,6 @@ describe('createConstraint', () => {
     })
 
     expect(constraint.name).toBe('custom-format')
-    expect(constraint.metadata).toHaveLength(11) // 10 default + 1 custom
+    expect(constraint.metadata).toHaveLength(12) // 11 default + 1 custom
   })
 })

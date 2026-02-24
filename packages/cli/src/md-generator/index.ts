@@ -174,9 +174,9 @@ export class MDGenerator {
         const map: Record<string, { role: 'human' | 'agent'; model?: string }> = {}
         for (const m of session.messages) {
           if (m.role === 'user' && !('user' in map)) {
-            map['user'] = { role: 'human' }
+            map.user = { role: 'human' }
           } else if ((m.role === 'assistant' || m.role === 'toolResult') && !('assistant' in map)) {
-            map['assistant'] = { role: 'agent', ...(m.model ? { model: m.model } : {}) }
+            map.assistant = { role: 'agent', ...(m.model ? { model: m.model } : {}) }
           }
         }
         return Object.keys(map).length > 0 ? map : undefined
