@@ -16,6 +16,7 @@ export const ChatsShareConfigSchema = z.object({
   base: z.string().optional(),
   public_dir: z.string().optional(),
   out_dir: z.string().optional(),
+  chats_dir: z.string().optional(),
   template: TemplateSchema.optional(),
 })
 

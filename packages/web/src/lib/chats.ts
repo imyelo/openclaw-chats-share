@@ -6,6 +6,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { format } from 'date-fns'
 import matter from 'gray-matter'
+import { getProjectConfig, getWorkingDir } from './config.js'
 
 export interface ChatMetadata {
   title: string
@@ -28,16 +29,20 @@ export interface ChatWithContent extends ChatData {
   messageBlocks: string[]
 }
 
-function getDataDir(): string {
-  const workdir = process.env.CHATS_SHARE_WORKDIR ?? path.join(process.cwd(), '..', '..')
+async function getDataDir(): Promise<string> {
+  const workdir = getWorkingDir()
+  const config = await getProjectConfig()
+  if (config.chats_dir) {
+    return path.resolve(workdir, config.chats_dir)
+  }
   return path.join(workdir, 'chats')
 }
 
 /**
  * Fetch all share chats from chats/, including parsed message blocks
  */
-export function getAllChatsWithContent(): ChatWithContent[] {
-  const dataDir = getDataDir()
+export async function getAllChatsWithContent(): Promise<ChatWithContent[]> {
+  const dataDir = await getDataDir()
   if (!fs.existsSync(dataDir)) {
     return []
   }
@@ -68,15 +73,15 @@ export function getAllChatsWithContent(): ChatWithContent[] {
 /**
  * Fetch all share chats from chats/
  */
-export function getAllChats(): ChatData[] {
-  return getAllChatsWithContent().map(({ messageBlocks: _, ...chat }) => chat)
+export async function getAllChats(): Promise<ChatData[]> {
+  return (await getAllChatsWithContent()).map(({ messageBlocks: _, ...chat }) => chat)
 }
 
 /**
  * Filter to only return public chats
  */
-export function getPublicChats(): ChatData[] {
-  return getAllChats().filter(chat => chat.visibility !== 'private')
+export async function getPublicChats(): Promise<ChatData[]> {
+  return (await getAllChats()).filter(chat => chat.visibility !== 'private')
 }
 
 /**

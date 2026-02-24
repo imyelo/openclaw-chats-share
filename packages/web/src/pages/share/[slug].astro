@@ -5,7 +5,7 @@ import { AVATAR_COLORS } from '../../constants/index.js';
 import { getAllChatsWithContent, type ChatWithContent } from '../../lib/chats';
 
 export async function getStaticPaths() {
-  return getAllChatsWithContent().map(chat => ({
+  return (await getAllChatsWithContent()).map(chat => ({
     params: { slug: chat.slug },
     props: { chat },
   }));

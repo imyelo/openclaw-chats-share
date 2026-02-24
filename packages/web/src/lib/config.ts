@@ -8,11 +8,10 @@ export async function getProjectConfig(): Promise<ChatsShareConfig> {
     return _configCache
   }
 
-  const projectDir = process.env.CHATS_SHARE_WORKDIR
   const { config } = await loadConfig<ChatsShareConfig>({
     name: 'chats-share',
     configFile: 'chats-share',
-    cwd: projectDir,
+    cwd: getWorkingDir(),
   })
 
   const parsed = ChatsShareConfigSchema.safeParse(config)
@@ -24,4 +23,8 @@ export async function getProjectConfig(): Promise<ChatsShareConfig> {
 
   _configCache = parsed.data || {}
   return _configCache
+}
+
+export function getWorkingDir() {
+  return process.env.CHATS_SHARE_WORKDIR || process.cwd()
 }

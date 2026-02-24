@@ -4,7 +4,7 @@ import { getProjectConfig } from '../lib/config.js'
 import Footer from '../components/Footer.astro';
 import MemoryBackground from '../components/MemoryBackground.astro';
 
-const chats = getChatsSortedByDate(getPublicChats())
+const chats = getChatsSortedByDate(await getPublicChats())
 const config = await getProjectConfig()
 const siteTitle = config.template?.options?.title || 'chats-share'
 const siteSubtitle = config.template?.options?.subtitle || '// openclaw conversation archive'

@@ -3,7 +3,8 @@ import react from '@astrojs/react';
 import UnoCSS from 'unocss/astro';
 import { loadConfig } from 'c12';
 import { createDefu } from 'defu';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
+import { existsSync } from 'node:fs';
 import { ChatsShareConfigSchema } from './src/lib/config-schema.ts';
 
 // Arrays are concatenated, then base items.
@@ -14,7 +15,40 @@ const merge = createDefu((obj, key, value) => {
   }
 });
 
-const projectDir = process.env.CHATS_SHARE_WORKDIR;
+const projectDir = process.env.CHATS_SHARE_WORKDIR ?? process.cwd();
+
+// The chats/ directory lives outside Astro's project root, so Vite won't watch
+// it by default. This plugin adds it to the watcher and triggers a full reload
+// whenever a chat file or the project config file changes.
+function externalWatchPlugin() {
+  const chatsDir = resolve(
+    projectDir,
+    config.chats_dir ?? 'chats',
+  );
+  const configDir = projectDir;
+
+  return {
+    name: 'openclaw-chats-watch',
+    apply: 'serve',
+    configureServer(server) {
+      if (existsSync(chatsDir)) {
+        server.watcher.add(chatsDir);
+      }
+      server.watcher.add(join(configDir, 'chats-share.toml'));
+
+      const reload = (file) => {
+        if (file.startsWith(chatsDir) || file.startsWith(join(configDir, 'chats-share.toml'))) {
+          server.moduleGraph.invalidateAll();
+          server.ws.send({ type: 'full-reload' });
+        }
+      };
+
+      server.watcher.on('add', reload);
+      server.watcher.on('change', reload);
+      server.watcher.on('unlink', reload);
+    },
+  };
+}
 
 const { config: projectConfig } = await loadConfig({
   name: 'chats-share',
@@ -51,6 +85,7 @@ export default defineConfig(merge(
           generateScopedName: "[name]__[local]___[hash:base64:5]",
         },
       },
+      plugins: [externalWatchPlugin()],
     },
     output: 'static',
     build: {
