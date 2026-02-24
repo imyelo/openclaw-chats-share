@@ -2,6 +2,9 @@ import { z } from 'zod'
 
 const TemplateOptionsSchema = z.object({
   footer: z.string().optional(),
+  title: z.string().optional(),
+  subtitle: z.string().optional(),
+  description: z.string().optional(),
 })
 
 const TemplateSchema = z.object({

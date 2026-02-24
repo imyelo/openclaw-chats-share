@@ -1,22 +1,27 @@
 ---
 import { getPublicChats, getChatsSortedByDate } from '../lib/chats.js'
+import { getProjectConfig } from '../lib/config.js'
 import Footer from '../components/Footer.astro';
+import MemoryBackground from '../components/MemoryBackground.astro';
 
 const chats = getChatsSortedByDate(getPublicChats())
+const config = await getProjectConfig()
+const siteTitle = config.template?.options?.title || 'chats-share'
+const siteSubtitle = config.template?.options?.subtitle || '// openclaw conversation archive'
+const siteDescription = config.template?.options?.description || 'OpenClaw Chats Share - A place for sharing and exploring AI chat conversations.'
 ---
 
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="OpenClaw Chats Share - A place for sharing and exploring AI chat conversations." />
-    <title>chats-share</title>
+    <meta name="description" content={siteDescription} />
+    <title>{siteTitle}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
     <style>
-      /* Base reset & theme using CSS variables */
       :root {
         --bg-primary: #0a0a0a;
         --bg-secondary: #141414;
@@ -41,10 +46,11 @@ const chats = getChatsSortedByDate(getPublicChats())
       body {
         margin: 0;
         font-family: 'Libre Baskerville', Georgia, serif;
-        background: var(--bg-primary);
         color: var(--text-primary);
         line-height: 1.6;
         min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
       }
 
       /* Scanline texture overlay */
@@ -187,6 +193,8 @@ const chats = getChatsSortedByDate(getPublicChats())
     </style>
   </head>
   <body>
+    <MemoryBackground />
+
     <!-- Decorative corners -->
     <div class="corner-mark top-left"></div>
     <div class="corner-mark top-right"></div>
@@ -195,8 +203,8 @@ const chats = getChatsSortedByDate(getPublicChats())
 
     <div class="container">
       <header class="header">
-        <h1 class="title">chats-share</h1>
-        <p class="subtitle">// conversation archive</p>
+        <h1 class="title">{siteTitle}</h1>
+        {siteSubtitle && <p class="subtitle">{siteSubtitle}</p>}
       </header>
 
       {chats.length === 0 ? (

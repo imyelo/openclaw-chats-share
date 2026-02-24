@@ -24,6 +24,11 @@
 # trailingSlash = "always"
 # compressHTML = false
 
-# Customise the layout footer.
-# [template.options.footer]
-# powered_by = 'powered by [@imyelo](https://github.com/imyelo) &times; [@lambda610](https://github.com/lambda610)'
+# Customize the homepage title and subtitle.
+# [template.options]
+# title = "chats-share"
+# subtitle = "// conversation archive"
+
+# Customize the layout footer.
+# [template.options]
+# footer = "powered by [@imyelo](https://github.com/imyelo) &times; [@lambda610](https://github.com/lambda610)"

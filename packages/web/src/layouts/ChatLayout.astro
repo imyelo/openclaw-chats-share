@@ -1,5 +1,6 @@
 ---
 import Footer from '../components/Footer.astro';
+import MemoryBackground from '../components/MemoryBackground.astro';
 
 interface Props {
   title: string
@@ -52,10 +53,11 @@ const { title, channel, model, date, messageCount } = Astro.props;
       body {
         margin: 0;
         font-family: 'Libre Baskerville', Georgia, serif;
-        background: var(--bg-primary);
         color: var(--text-primary);
         line-height: 1.6;
         min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
       }
 
       /* Scanline texture */
@@ -141,6 +143,8 @@ const { title, channel, model, date, messageCount } = Astro.props;
     </style>
   </head>
   <body>
+    <MemoryBackground />
+
     <!-- Decorative corners -->
     <div class="corner-mark top-left"></div>
     <div class="corner-mark top-right"></div>
