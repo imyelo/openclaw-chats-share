@@ -129,7 +129,7 @@ export const CollapsibleMessage = memo(function CollapsibleMessage({
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
+                  d="m6 9 6 6 6-6"
                 />
               </svg>
             </span>
