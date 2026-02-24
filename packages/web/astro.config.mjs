@@ -5,6 +5,7 @@ import { loadConfig } from 'c12';
 import { createDefu } from 'defu';
 import { join, resolve } from 'node:path';
 import { existsSync } from 'node:fs';
+import { searchForWorkspaceRoot } from 'vite';
 import { ChatsShareConfigSchema } from './src/lib/config-schema.ts';
 
 // Arrays are concatenated, then base items.
@@ -79,6 +80,11 @@ export default defineConfig(merge(
       react(),
     ],
     vite: {
+      server: {
+        fs: {
+          allow: [searchForWorkspaceRoot(projectDir)],
+        },
+      },
       css: {
         postcss: {
           plugins: [autoprefixer()],
