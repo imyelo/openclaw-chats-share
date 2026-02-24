@@ -77,6 +77,12 @@ bun run dev
 
 Deployment is automatic — push to \`main\` and GitHub Actions handles the build and publish.
 
+## Configuration
+
+Edit \`chats-share.toml\` to customise the site URL, base path, and appearance (title, subtitle, footer, etc.).
+
+For a full list of options and advanced configuration (custom domain, external chats directory, etc.), see the [openclaw-chats-share documentation](https://github.com/imyelo/openclaw-chats-share#configuration).
+
 ---
 
 Powered by [openclaw-chats-share](https://github.com/imyelo/openclaw-chats-share).
@@ -154,6 +160,13 @@ export default defineConfig({
 # [astro]
 # trailingSlash = "always"
 # compressHTML = false
+
+# Customize homepage and layout appearance.
+# [template.options]
+# title = "chats-share"
+# subtitle = "// conversation archive"
+# description = "My conversation archive"
+# footer = "powered by [@imyelo](https://github.com/imyelo) &times; [@lambda610](https://github.com/lambda610)"
 "
 ,
   "chats/.gitkeep": "",
@@ -166,7 +179,7 @@ export default defineConfig({
     "build": "openclaw-chats-share-web build"
   },
   "dependencies": {
-    "openclaw-chats-share-web": "^1.0.0"
+    "openclaw-chats-share-web": "latest"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.4"
@@ -255,6 +268,12 @@ bun run dev
 
 Deployment is automatic — push to \`main\` and GitHub Actions handles the build and publish.
 
+## Configuration
+
+Edit \`chats-share.toml\` to customise the site URL, base path, and appearance (title, subtitle, footer, etc.).
+
+For a full list of options and advanced configuration (custom domain, external chats directory, etc.), see the [openclaw-chats-share documentation](https://github.com/imyelo/openclaw-chats-share#configuration).
+
 ---
 
 Powered by [openclaw-chats-share](https://github.com/imyelo/openclaw-chats-share).
@@ -332,6 +351,13 @@ export default defineConfig({
 # [astro]
 # trailingSlash = "always"
 # compressHTML = false
+
+# Customize homepage and layout appearance.
+# [template.options]
+# title = "chats-share"
+# subtitle = "// conversation archive"
+# description = "My conversation archive"
+# footer = "powered by [@imyelo](https://github.com/imyelo) &times; [@lambda610](https://github.com/lambda610)"
 "
 ,
   "chats/.gitkeep": "",
@@ -344,7 +370,7 @@ export default defineConfig({
     "build": "openclaw-chats-share-web build"
   },
   "dependencies": {
-    "openclaw-chats-share-web": "^1.0.0"
+    "openclaw-chats-share-web": "latest"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.4"

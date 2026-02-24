@@ -24,11 +24,9 @@
 # trailingSlash = "always"
 # compressHTML = false
 
-# Customize the homepage title and subtitle.
+# Customize homepage and layout appearance.
 # [template.options]
 # title = "chats-share"
 # subtitle = "// conversation archive"
-
-# Customize the layout footer.
-# [template.options]
+# description = "My conversation archive"
 # footer = "powered by [@imyelo](https://github.com/imyelo) &times; [@lambda610](https://github.com/lambda610)"

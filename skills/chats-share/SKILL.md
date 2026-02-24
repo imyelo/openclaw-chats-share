@@ -20,7 +20,7 @@ Share OpenClaw conversations as public web pages.
 - **OpenClaw**: Read from `~/.openclaw/workspace/TOOLS.md`
 - **Other agents**: Pass as argument
 
-**domain**: Read from `{projectDir}/chats-share.toml`
+**site**: Read `site` URL from `{projectDir}/chats-share.toml`
 
 **outputDir**: `{projectDir}/chats/` (convention, not config)
 
@@ -30,7 +30,7 @@ Share OpenClaw conversations as public web pages.
    - Read `~/.openclaw/workspace/TOOLS.md`
    - If no project directory found → Run first-time setup (see "First Time Setup" section below)
 2. Load project dir (from TOOLS.md or arguments)
-3. Load domain from `{projectDir}/chats-share.toml`
+3. Load `site` URL from `{projectDir}/chats-share.toml` (use as base for output URL)
 4. Find session:
    - List all sessions: `ls -t ~/.openclaw/agents/main/sessions/*.jsonl`
    - Filter by:
@@ -71,7 +71,7 @@ When sharing publicly, review and redact:
 ## Output
 
 - File: `{projectDir}/chats/{YYYYMMDD}-{topic}.md`
-- URL: `https://{domain}/share/{slug}`
+- URL: `{site}/share/{slug}`
 
 ## Dev
 

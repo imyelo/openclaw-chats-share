@@ -6,7 +6,7 @@
     "build": "openclaw-chats-share-web build"
   },
   "dependencies": {
-    "openclaw-chats-share-web": "^1.0.0"
+    "openclaw-chats-share-web": "latest"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.4"
