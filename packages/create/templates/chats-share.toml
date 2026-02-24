@@ -23,3 +23,7 @@
 # [astro]
 # trailingSlash = "always"
 # compressHTML = false
+
+# Customise the layout footer.
+# [template.options.footer]
+# powered_by = 'powered by [@imyelo](https://github.com/imyelo) &times; [@lambda610](https://github.com/lambda610)'

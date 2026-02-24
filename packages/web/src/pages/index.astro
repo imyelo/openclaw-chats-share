@@ -1,5 +1,6 @@
 ---
 import { getPublicChats, getChatsSortedByDate } from '../lib/chats.js'
+import Footer from '../components/Footer.astro';
 
 const chats = getChatsSortedByDate(getPublicChats())
 ---
@@ -228,6 +229,8 @@ const chats = getChatsSortedByDate(getPublicChats())
           ))}
         </div>
       )}
+
+      <Footer />
     </div>
   </body>
 </html>

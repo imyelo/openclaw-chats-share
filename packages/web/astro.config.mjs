@@ -4,8 +4,9 @@ import UnoCSS from 'unocss/astro';
 import { loadConfig } from 'c12';
 import { createDefu } from 'defu';
 import { join } from 'node:path';
+import { ChatsShareConfigSchema } from './src/lib/config-schema.ts';
 
-// Arrays are concatenated: user items first, then base items.
+// Arrays are concatenated, then base items.
 const merge = createDefu((obj, key, value) => {
   if (Array.isArray(obj[key])) {
     obj[key] = [...obj[key], ...value];
@@ -21,17 +22,24 @@ const { config: projectConfig } = await loadConfig({
   cwd: projectDir,
 });
 
+const parsed = ChatsShareConfigSchema.safeParse(projectConfig);
+if (!parsed.success) {
+  console.warn('Invalid config:', parsed.error.flatten());
+}
+
+const config = parsed.success ? parsed.data : {};
+
 // Map top-level convenience keys to Astro config options.
 // Paths are resolved against the project directory so they work regardless
 // of which directory Astro is launched from.
 const mapped = {};
-if (projectConfig.site) mapped.site = projectConfig.site;
-if (projectConfig.base) mapped.base = projectConfig.base;
-if (projectConfig.public_dir) mapped.publicDir = projectDir ? join(projectDir, projectConfig.public_dir) : projectConfig.public_dir;
-if (projectConfig.out_dir) mapped.outDir = projectDir ? join(projectDir, projectConfig.out_dir) : projectConfig.out_dir;
+if (config.site) mapped.site = config.site;
+if (config.base) mapped.base = config.base;
+if (config.public_dir) mapped.publicDir = projectDir ? join(projectDir, config.public_dir) : config.public_dir;
+if (config.out_dir) mapped.outDir = projectDir ? join(projectDir, config.out_dir) : config.out_dir;
 
 export default defineConfig(merge(
-  { ...mapped, ...(projectConfig.astro ?? {}) },
+  { ...mapped, ...(config.astro ?? {}) },
   {
     integrations: [
       UnoCSS({ injectReset: true }),

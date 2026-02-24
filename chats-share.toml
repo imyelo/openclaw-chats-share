@@ -1,3 +1,6 @@
 site = "https://chats-share.yelo.ooo"
 public_dir = "public"
 out_dir = "dist"
+
+[template.options]
+footer = "powered by [@imyelo](https://github.com/imyelo) &times; [@lambda610](https://github.com/lambda610)"
