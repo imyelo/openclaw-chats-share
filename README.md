@@ -1,5 +1,7 @@
 # openclaw-chats-share
 
+> 📤 One command turns your Openclaw chats into beautiful, permanent pages — auto-deployed to your own GitHub Pages
+
 A monorepo for sharing OpenClaw conversation history as static websites. Trigger a share command in your chat channel and get a permanent, publicly accessible page — automatically built and deployed via GitHub Pages.
 
 ## How It Works
