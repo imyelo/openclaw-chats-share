@@ -1,0 +1,262 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`MDGenerator should generate content without front matter 1`] = `
+"# session-export
+
+> 2026-02-17
+
+---
+
+**user** · 2026-02-17T23:02:38.166Z
+
+Hello, can you help me?
+
+---
+
+**assistant** · 2026-02-17T23:02:52.044Z
+
+Of course! How can I assist you today?
+
+---
+
+**assistant** · 2026-02-17T23:02:59.000Z
+
+Let me write that to a file.
+
+:::{type=custom,collapsed=true}
+🔧 **write** · /test.md
+:::
+
+---
+
+**tool** · 2026-02-17T23:03:00.000Z
+
+Successfully wrote 100 bytes to /test.md
+
+:::{type=custom,collapsed=true}
+✅ **write** · Successfully wrote 100 bytes to /test.md
+:::"
+`;
+
+exports[`MDGenerator should generate content with front matter 1`] = `
+"---
+title: "session-export"
+date: "2026-02-17"
+sessionId: "test-session-123"
+model: "unknown"
+totalMessages: 4
+totalTokens: 0
+participants:
+  user:
+    role: "human"
+  assistant:
+    role: "agent"
+---
+
+# session-export
+
+> 2026-02-17
+
+---
+
+**user** · 2026-02-17T23:02:38.166Z
+
+Hello, can you help me?
+
+---
+
+**assistant** · 2026-02-17T23:02:52.044Z
+
+Of course! How can I assist you today?
+
+---
+
+**assistant** · 2026-02-17T23:02:59.000Z
+
+Let me write that to a file.
+
+:::{type=custom,collapsed=true}
+🔧 **write** · /test.md
+:::
+
+---
+
+**tool** · 2026-02-17T23:03:00.000Z
+
+Successfully wrote 100 bytes to /test.md
+
+:::{type=custom,collapsed=true}
+✅ **write** · Successfully wrote 100 bytes to /test.md
+:::"
+`;
+
+exports[`MDGenerator should exclude timestamps when disabled 1`] = `
+"# session-export
+
+> 2026-02-17
+
+---
+
+**user**
+
+Hello, can you help me?
+
+---
+
+**assistant**
+
+Of course! How can I assist you today?
+
+---
+
+**assistant**
+
+Let me write that to a file.
+
+:::{type=custom,collapsed=true}
+🔧 **write** · /test.md
+:::
+
+---
+
+**tool**
+
+Successfully wrote 100 bytes to /test.md
+
+:::{type=custom,collapsed=true}
+✅ **write** · Successfully wrote 100 bytes to /test.md
+:::"
+`;
+
+exports[`MDGenerator should include total tokens in front matter 1`] = `
+"---
+title: "session-export"
+date: "2026-02-17"
+sessionId: "test-session-123"
+model: "unknown"
+totalMessages: 1
+totalTokens: 30
+participants:
+  user:
+    role: "human"
+---
+
+# session-export
+
+> 2026-02-17
+
+---
+
+**user** · 2026-02-17T23:02:38.166Z
+
+Hello"
+`;
+
+exports[`MDGenerator - additional cases should render thinking blocks 1`] = `
+"# session-export
+
+> 2026-02-17
+
+---
+
+**assistant** · 2026-02-17T23:02:38.166Z
+
+:::{type=thinking_level_change,collapsed=true}
+🧠 **Thinking**
+Let me think about this...
+:::
+
+Final answer"
+`;
+
+exports[`MDGenerator - additional cases should render error tool result 1`] = `
+"# session-export
+
+> 2026-02-17
+
+---
+
+**tool** · 2026-02-17T23:02:38.166Z
+
+File not found
+
+:::{type=error,collapsed=false}
+❌ **read** · File not found
+:::"
+`;
+
+exports[`MDGenerator - additional cases should handle empty messages 1`] = `
+"# session-export
+
+> 2026-02-17"
+`;
+
+exports[`MDGenerator - additional cases should interleave non-message events chronologically 1`] = `
+"# session-export
+
+> 2026-02-17
+
+---
+
+:::{type=thinking_level_change,collapsed=true}
+🧠 **Thinking** level: off
+:::
+
+---
+
+**user** · 2026-02-17T23:02:40.000Z
+
+Hello"
+`;
+
+exports[`generateMD convenience function should write markdown to disk 1`] = `
+"---
+title: "session-export"
+date: "2026-02-17"
+sessionId: "test-session-123"
+model: "unknown"
+totalMessages: 4
+totalTokens: 0
+participants:
+  user:
+    role: "human"
+  assistant:
+    role: "agent"
+---
+
+# session-export
+
+> 2026-02-17
+
+---
+
+**user** · 2026-02-17T23:02:38.166Z
+
+Hello, can you help me?
+
+---
+
+**assistant** · 2026-02-17T23:02:52.044Z
+
+Of course! How can I assist you today?
+
+---
+
+**assistant** · 2026-02-17T23:02:59.000Z
+
+Let me write that to a file.
+
+:::{type=custom,collapsed=true}
+🔧 **write** · /test.md
+:::
+
+---
+
+**tool** · 2026-02-17T23:03:00.000Z
+
+Successfully wrote 100 bytes to /test.md
+
+:::{type=custom,collapsed=true}
+✅ **write** · Successfully wrote 100 bytes to /test.md
+:::"
+`;

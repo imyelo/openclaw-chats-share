@@ -50,40 +50,98 @@ participants:
 
 # Debugging Async Issue
 
-:::{type=session,collapsed=true}
-Session started · 2026-02-15 · /home/user/.openclaw/workspace
-:::
+> 2026-02-15
 
-:::{type=thinking_level_change,collapsed=true}
-🧠 **Thinking** level: off
-:::
+---
 
 **user** · 2026-02-15T06:13:50.514Z
 
 Message content...
 
+---
+
 **assistant** · 2026-02-15T06:14:05.123Z
 
+:::{type=thinking_level_change,collapsed=true}
+🧠 **Thinking**
+Let me reason through this...
+:::
+
 Response content...
+
+---
 
 :::{type=custom,collapsed=true}
 Model snapshot: MiniMax-M2.5 (minimax)
 :::
+
+---
+
+**user** · 2026-02-15T06:15:00.000Z
+
+Can errors be shown?
+
+---
+
+**assistant** · 2026-02-15T06:15:10.000Z
+
+:::{type=error,collapsed=false}
+⚠️ Permission denied
+:::
+
+Of course, like the panel above.
 ```
+
+### Header block
+
+After `# Title`, a date blockquote and horizontal rule introduce the conversation:
+
+```markdown
+# Title
+
+> YYYY-MM-DD
+
+---
+```
+
+### Message separators
+
+Each message (and standalone event block) is separated from the next by a `---` horizontal rule.
 
 ## Special Blocks
 
-Non-message events are rendered as fenced directives — collapsible panels in the web UI:
+Non-message events and inline content (thinking, errors, tool calls) are rendered as fenced directives — collapsible panels in the web UI:
 
 ```
-:::{type=<event-type>,collapsed=true}
+:::{type=<event-type>,collapsed=<true|false>}
 content...
 :::
 ```
 
-| Type | UI Color | Event |
-|------|----------|-------|
-| `session` | green | Session start |
-| `thinking_level_change` | gray | Thinking level changed |
-| `custom` | indigo | Custom events (e.g. model-snapshot) |
-| `error` | red | Error events |
+The `collapsed` attribute controls the initial state of the panel: `true` collapses it by default, `false` shows it open.
+
+### Block types
+
+| Type | UI Color | Used for |
+|------|----------|----------|
+| `session` | green | Session start event |
+| `thinking_level_change` | gray | Thinking level change event **or** model reasoning content inside a message |
+| `custom` | indigo | Custom events (e.g. model-snapshot, plugin calls) |
+| `error` | red | Error events; typically `collapsed=false` so errors are visible by default |
+
+### Thinking content inside messages
+
+Model reasoning blocks appear **inside** the assistant message body, between the message header and the response text. They reuse the `thinking_level_change` type to get the gray color:
+
+```markdown
+**assistant** · 2026-02-15T06:14:05.123Z
+
+:::{type=thinking_level_change,collapsed=true}
+🧠 **Thinking**
+Let me reason through this...
+:::
+
+Here is my response.
+```
+
+This is distinct from a standalone `thinking_level_change` event (e.g. "thinking turned off"), which appears between messages at its chronological position.

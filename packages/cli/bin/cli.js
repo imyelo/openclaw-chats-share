@@ -26,7 +26,7 @@ if (command === 'parse') {
   const session = parser.parseContent(content)
 
   const generator = new MDGenerator(DEFAULT_CONSTRAINT)
-  const markdown = generator.generate(session)
+  const markdown = generator.generateWithFrontMatter(session)
 
   const outputPath = values.output || inputPath.replace('.jsonl', '.md')
   writeFileSync(outputPath, markdown)

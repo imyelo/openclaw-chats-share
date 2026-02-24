@@ -7,6 +7,14 @@ model: MiniMax-M2.5
 totalMessages: 10
 visibility: public
 description: Building a conversation sharing tool for AI agent interactions
+participants:
+  Human 1:
+    role: human
+  Human 2:
+    role: human
+  Agent:
+    role: agent
+    model: MiniMax-M2.5
 ---
 
 # Building a Conversation Sharing Tool

@@ -138,7 +138,7 @@ invalid json line
 
 describe('parseSession (convenience function)', () => {
   it('should work as convenience function', async () => {
-    const result = await parseSession('./packages/cli/test/fixtures/sample-session.jsonl')
+    const result = await parseSession(`${import.meta.dir}/fixtures/sample-session.jsonl`)
     expect(result.meta).toBeDefined()
   })
 })

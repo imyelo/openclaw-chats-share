@@ -51,56 +51,18 @@ const SAMPLE_SESSION: ParsedSession = {
     },
   ] as ParsedMessage[],
   modelChanges: [],
+  events: [],
 }
 
 describe('MDGenerator', () => {
-  it('should generate basic markdown', () => {
+  it('should generate content without front matter', () => {
     const generator = new MDGenerator(DEFAULT_CONSTRAINT, { includeFrontMatter: false })
-    const output = generator.generate(SAMPLE_SESSION)
-
-    expect(output).toContain('## Summary')
-    expect(output).toContain('## Conversation')
+    expect(generator.generate(SAMPLE_SESSION)).toMatchSnapshot()
   })
 
-  it('should include front matter', () => {
+  it('should generate content with front matter', () => {
     const generator = new MDGenerator(DEFAULT_CONSTRAINT)
-    const output = generator.generateWithFrontMatter(SAMPLE_SESSION)
-
-    expect(output).toContain('---')
-    expect(output).toContain('title:')
-    expect(output).toContain('sessionId:')
-  })
-
-  it('should extract summary', () => {
-    const generator = new MDGenerator(DEFAULT_CONSTRAINT, { includeFrontMatter: false })
-    const output = generator.generate(SAMPLE_SESSION)
-
-    expect(output).toContain('Hello')
-    expect(output).toContain('How can I assist')
-  })
-
-  it('should format messages correctly', () => {
-    const generator = new MDGenerator(DEFAULT_CONSTRAINT, { includeFrontMatter: false })
-    const output = generator.generate(SAMPLE_SESSION)
-
-    expect(output).toContain('**user:**')
-    expect(output).toContain('**assistant:**')
-  })
-
-  it('should include tool calls', () => {
-    const generator = new MDGenerator(DEFAULT_CONSTRAINT, { includeFrontMatter: false })
-    const output = generator.generate(SAMPLE_SESSION)
-
-    expect(output).toContain('Tool: write')
-    expect(output).toContain('/test.md')
-  })
-
-  it('should include tool results', () => {
-    const generator = new MDGenerator(DEFAULT_CONSTRAINT, { includeFrontMatter: false })
-    const output = generator.generate(SAMPLE_SESSION)
-
-    expect(output).toContain('✅ Result:')
-    expect(output).toContain('Successfully wrote')
+    expect(generator.generateWithFrontMatter(SAMPLE_SESSION)).toMatchSnapshot()
   })
 
   it('should exclude timestamps when disabled', () => {
@@ -108,12 +70,10 @@ describe('MDGenerator', () => {
       includeFrontMatter: false,
       includeTimestamps: false,
     })
-    const output = generator.generate(SAMPLE_SESSION)
-
-    expect(output).not.toContain('*[2026-02-17')
+    expect(generator.generate(SAMPLE_SESSION)).toMatchSnapshot()
   })
 
-  it('should calculate total tokens from messages', () => {
+  it('should include total tokens in front matter', () => {
     const sessionWithUsage: ParsedSession = {
       ...SAMPLE_SESSION,
       messages: [
@@ -135,9 +95,7 @@ describe('MDGenerator', () => {
     }
 
     const generator = new MDGenerator(DEFAULT_CONSTRAINT)
-    const output = generator.generateWithFrontMatter(sessionWithUsage)
-
-    expect(output).toContain('totalTokens: 30')
+    expect(generator.generateWithFrontMatter(sessionWithUsage)).toMatchSnapshot()
   })
 })
 
@@ -157,14 +115,10 @@ describe('MDGenerator - additional cases', () => {
     }
 
     const generator = new MDGenerator(DEFAULT_CONSTRAINT, { includeFrontMatter: false })
-    const output = generator.generate(sessionWithThinking)
-
-    expect(output).toContain('💭')
-    expect(output).toContain('Let me think about this...')
-    expect(output).toContain('Final answer')
+    expect(generator.generate(sessionWithThinking)).toMatchSnapshot()
   })
 
-  it('should render error tool result with ❌', () => {
+  it('should render error tool result', () => {
     const sessionWithError: ParsedSession = {
       ...SAMPLE_SESSION,
       messages: [
@@ -184,22 +138,42 @@ describe('MDGenerator - additional cases', () => {
     }
 
     const generator = new MDGenerator(DEFAULT_CONSTRAINT, { includeFrontMatter: false })
-    const output = generator.generate(sessionWithError)
-
-    expect(output).toContain('❌ Result:')
-    expect(output).toContain('File not found')
+    expect(generator.generate(sessionWithError)).toMatchSnapshot()
   })
 
-  it('should fall back to message count when messages have no user/assistant pair', () => {
+  it('should handle empty messages', () => {
     const sessionEmpty: ParsedSession = {
       ...SAMPLE_SESSION,
       messages: [],
     }
 
     const generator = new MDGenerator(DEFAULT_CONSTRAINT, { includeFrontMatter: false })
-    const output = generator.generate(sessionEmpty)
+    expect(generator.generate(sessionEmpty)).toMatchSnapshot()
+  })
 
-    expect(output).toContain('0 messages')
+  it('should interleave non-message events chronologically', () => {
+    const sessionWithEvents: ParsedSession = {
+      ...SAMPLE_SESSION,
+      messages: [
+        {
+          id: 'msg1',
+          timestamp: '2026-02-17T23:02:40.000Z',
+          role: 'user',
+          content: 'Hello',
+        },
+      ] as ParsedMessage[],
+      events: [
+        {
+          type: 'thinking_level_change',
+          id: 'evt1',
+          timestamp: '2026-02-17T23:02:39.000Z',
+          thinkingLevel: 'off',
+        },
+      ],
+    }
+
+    const generator = new MDGenerator(DEFAULT_CONSTRAINT, { includeFrontMatter: false })
+    expect(generator.generate(sessionWithEvents)).toMatchSnapshot()
   })
 })
 
@@ -213,8 +187,7 @@ describe('generateMD convenience function', () => {
     try {
       await generateMD(SAMPLE_SESSION, DEFAULT_CONSTRAINT, outPath)
       const content = await readFile(outPath, 'utf-8')
-      expect(content).toContain('---')
-      expect(content).toContain('## Conversation')
+      expect(content).toMatchSnapshot()
     } finally {
       await rm(outPath, { force: true })
     }

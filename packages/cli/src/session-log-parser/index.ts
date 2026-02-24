@@ -8,7 +8,7 @@ import { resolve } from 'node:path'
 
 // Event types from session.log
 export interface SessionEvent {
-  type: 'session' | 'model_change' | 'thinking_level_change' | 'custom' | 'message'
+  type: 'session' | 'model_change' | 'thinking_level_change' | 'custom' | 'message' | 'compaction'
   id: string
   parentId?: string | null
   timestamp: string
@@ -107,6 +107,8 @@ export interface ParsedSession {
   meta: SessionMeta
   messages: ParsedMessage[]
   modelChanges: SessionEvent[]
+  /** All non-session, non-message events in chronological order */
+  events: SessionEvent[]
 }
 
 export interface ParserOptions {
@@ -162,6 +164,7 @@ export class LogParser {
   private buildSession(events: SessionEvent[]): ParsedSession {
     const sessionEvent = events.find(e => e.type === 'session') as unknown as SessionMeta | undefined
     const modelChanges = events.filter(e => e.type === 'model_change')
+    const nonMessageEvents = events.filter(e => e.type !== 'session' && e.type !== 'message')
     const messages: ParsedMessage[] = []
 
     for (const event of events) {
@@ -183,6 +186,7 @@ export class LogParser {
       },
       messages,
       modelChanges,
+      events: nonMessageEvents,
     }
   }
 

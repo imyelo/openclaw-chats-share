@@ -38,7 +38,7 @@ Share OpenClaw conversations as public web pages.
      - `topic=xxx` → grep topic keyword in content
      - `current` → use most recent (first line after ls -t)
    - Show candidates to user for confirmation
-5. Parse to temp: `openclaw-chats-share parse {session} -o {projectDir}/chats/.tmp/{timestamp}.md`
+5. Parse to temp: `npx openclaw-chats-share parse {session} -o {projectDir}/chats/.tmp/{timestamp}.md`
 6. Digest summary from parsed file, suggest topic name based on content (e.g. "How to use OpenClaw with Python")
 7. Confirm participants: Read the auto-generated `participants` frontmatter from the temp file.
    Show the current entries and ask the user if they want to customize the display names
