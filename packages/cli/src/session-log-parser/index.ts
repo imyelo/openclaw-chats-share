@@ -164,7 +164,7 @@ export class LogParser {
   private buildSession(events: SessionEvent[]): ParsedSession {
     const sessionEvent = events.find(e => e.type === 'session') as unknown as SessionMeta | undefined
     const modelChanges = events.filter(e => e.type === 'model_change')
-    const nonMessageEvents = events.filter(e => e.type !== 'session' && e.type !== 'message')
+    const nonMessageEvents = events.filter(e => e.type !== 'message')
     const messages: ParsedMessage[] = []
 
     for (const event of events) {
@@ -211,7 +211,12 @@ export class LogParser {
     // Extract content blocks
     for (const block of message.content) {
       if (block.type === 'text' && block.text) {
-        parsed.content += block.text
+        let text = block.text
+        // Clean up Discord/Telegram metadata prefix from user messages
+        if (message.role === 'user') {
+          text = this.cleanExternalChannelMessage(text)
+        }
+        parsed.content += text
       } else if (block.type === 'thinking' && this.options.includeThinking) {
         parsed.thinking = block.thinking
       } else if (block.type === 'toolCall') {
@@ -241,6 +246,44 @@ export class LogParser {
     }
 
     return parsed
+  }
+
+  /**
+   * Clean up Discord/Telegram/etc metadata prefix from user messages
+   * Example: "[Discord Guild #channel ...] user: message content [from: user]"
+   * becomes: "message content"
+   */
+  private cleanExternalChannelMessage(text: string): string {
+    // Pattern for Discord messages: [Discord ...] user (username): message [from: ...]
+    // Pattern for Telegram messages: user (username): message
+    // Remove the channel metadata prefix and trailing metadata like [message_id: xxx] or [from: xxx]
+    // Handle multi-line messages with [message_id: xxx] on second line
+
+    // First, try to match and remove Discord-style prefix (may have trailing metadata on new line)
+    // Example: [Discord Guild #lambda-test channel id:1234567890123456789 Wed 2026-02-18 07:02 GMT+8] yelo (xxx): message [from: yelo (1234567890123456789)]
+    // with optional [message_id: xxx] on second line
+    const discordMatch = text.match(
+      /^\[Discord[^\]]*\]\s*[^\s:]+(?:\s*\([^)]+\))?:\s*(.+?)(?:\s*\[(?:from|message_id):[^\]]+\])?(?:\n\[(?:from|message_id):[^\]]+\])?\s*$/s
+    )
+    if (discordMatch) {
+      return discordMatch[1].trim()
+    }
+
+    // Try to remove trailing [from: xxx] or [message_id: xxx] suffix (single or multi-line)
+    // Matches "content [from: xxx]" or "content [from: xxx]\n[message_id: xxx]"
+    const suffixMatch = text.match(/^(.+?)\s*\[(?:from|message_id):[^\]]+\](?:\n\[(?:from|message_id):[^\]]+\])?\s*$/s)
+    if (suffixMatch) {
+      return suffixMatch[1].trim()
+    }
+
+    // Try Telegram-style prefix: user (username): message
+    const telegramMatch = text.match(/^[^\s:]+(?:\s*\([^)]+\))?:\s*(.+)$/s)
+    if (telegramMatch) {
+      return telegramMatch[1].trim()
+    }
+
+    // If no pattern matches, return original text
+    return text
   }
 }
 

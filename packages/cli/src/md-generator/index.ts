@@ -52,6 +52,19 @@ export class MDGenerator {
     const sessionDate = session.meta.timestamp.split('T')[0]
     parts.push(`# ${title}\n\n> ${sessionDate}`)
 
+    // Build a map of toolCallId -> toolResult for linking tool calls with results
+    // Also build a set of toolCall IDs that exist in the session
+    const toolResultMap = new Map<string, ParsedMessage>()
+    const toolCallIds = new Set<string>()
+    for (const msg of session.messages) {
+      if (msg.role === 'toolResult' && msg.toolResult?.toolCallId) {
+        toolResultMap.set(msg.toolResult.toolCallId, msg)
+      }
+      if (msg.role === 'assistant' && msg.toolCall?.id) {
+        toolCallIds.add(msg.toolCall.id)
+      }
+    }
+
     // Merge messages and non-message events, sort by timestamp
     type TimelineItem =
       | { timestamp: string; kind: 'message'; data: ParsedMessage }
@@ -65,10 +78,22 @@ export class MDGenerator {
 
     for (const item of timeline) {
       if (item.kind === 'message') {
-        parts.push(this.renderMessage(item.data))
+        // Skip toolResult messages that have a corresponding toolCall (they're rendered with the toolCall)
+        // Check if there's actually a toolCall message for this toolResult
+        if (
+          item.data.role === 'toolResult' &&
+          item.data.toolResult?.toolCallId &&
+          toolCallIds.has(item.data.toolResult.toolCallId)
+        ) {
+          continue
+        }
+        // Pass toolResultMap to renderMessage for linking
+        parts.push(this.renderMessage(item.data, toolResultMap))
       } else {
         const block = this.renderEvent(item.data)
-        if (block) { parts.push(block) }
+        if (block) {
+          parts.push(block)
+        }
       }
     }
 
@@ -87,15 +112,16 @@ export class MDGenerator {
   /**
    * Render a single message block
    */
-  private renderMessage(msg: ParsedMessage): string {
-    const role = msg.role === 'toolResult' ? 'tool' : msg.role
-    const header = this.options.includeTimestamps
-      ? `**${role}** · ${msg.timestamp}`
-      : `**${role}**`
-    const blocks: string[] = [header, '']
+  private renderMessage(msg: ParsedMessage, toolResultMap?: Map<string, ParsedMessage>): string {
+    const isToolResult = msg.role === 'toolResult'
+    const role = isToolResult ? 'tool' : msg.role
+    const header = this.options.includeTimestamps ? `**${role}** · ${msg.timestamp}` : `**${role}**`
 
-    // Thinking block
-    if (msg.thinking) {
+    // For toolResult messages, don't show message header - just render the tool result block
+    const blocks: string[] = isToolResult ? [] : [header, '']
+
+    // Thinking block (only for non-toolResult messages)
+    if (msg.thinking && !isToolResult) {
       blocks.push(`:::{type=thinking_level_change,collapsed=true}`)
       blocks.push(`🧠 **Thinking**`)
       blocks.push(msg.thinking)
@@ -103,26 +129,45 @@ export class MDGenerator {
       blocks.push('')
     }
 
-    // Text content
-    if (msg.content) {
+    // Text content (only for non-toolResult messages)
+    if (msg.content && !isToolResult) {
       blocks.push(msg.content)
     }
 
-    // Tool call
-    if (msg.toolCall) {
+    // Tool call - include tool result if available
+    if (msg.toolCall && !isToolResult) {
       const argDesc = msg.toolCall.arguments.file_path ? ` · ${msg.toolCall.arguments.file_path}` : ''
       blocks.push('')
-      blocks.push(`:::{type=custom,collapsed=true}`)
-      blocks.push(`🔧 **${msg.toolCall.name}**${argDesc}`)
-      blocks.push(`:::`)
+
+      // Check if there's a corresponding toolResult
+      const toolResultMsg = msg.toolCall.id ? toolResultMap?.get(msg.toolCall.id) : undefined
+
+      if (toolResultMsg?.toolResult) {
+        // Render tool call and result together in one block
+        const tr = toolResultMsg.toolResult
+        const icon = tr.isError ? '❌' : '✅'
+        const blockType = tr.isError ? 'error' : 'custom'
+        const collapsed = tr.isError ? 'false' : 'true'
+        blocks.push(`:::{type=${blockType},collapsed=${collapsed}}`)
+        blocks.push(`🔧 **${msg.toolCall.name}**${argDesc}`)
+        blocks.push(`${icon} **${tr.toolName}** · ${tr.content}`)
+        blocks.push(`:::`)
+      } else {
+        // No result yet - just show the tool call
+        blocks.push(`:::{type=custom,collapsed=true}`)
+        blocks.push(`🔧 **${msg.toolCall.name}**${argDesc}`)
+        blocks.push(`:::`)
+      }
     }
 
-    // Tool result
-    if (msg.toolResult) {
+    // Legacy toolResult rendering (for messages that have toolResult but are not standalone)
+    if (msg.toolResult && !msg.toolCall) {
       const icon = msg.toolResult.isError ? '❌' : '✅'
       const blockType = msg.toolResult.isError ? 'error' : 'custom'
       const collapsed = msg.toolResult.isError ? 'false' : 'true'
-      blocks.push('')
+      if (!isToolResult) {
+        blocks.push('')
+      }
       blocks.push(`:::{type=${blockType},collapsed=${collapsed}}`)
       blocks.push(`${icon} **${msg.toolResult.toolName}** · ${msg.toolResult.content}`)
       blocks.push(`:::`)
@@ -160,6 +205,10 @@ export class MDGenerator {
       case 'compaction': {
         const tokens = e.tokensBefore ?? ''
         return `:::{type=custom,collapsed=true}\nContext compacted (${tokens} tokens)\n:::`
+      }
+      case 'session': {
+        const cwd = e.cwd ? ` (${e.cwd})` : ''
+        return `:::{type=session,collapsed=true}\nSession started${cwd}\n:::`
       }
       default:
         return null
@@ -211,6 +260,13 @@ export class MDGenerator {
         }
         return Object.keys(map).length > 0 ? map : undefined
       }
+      case 'visibility':
+        return 'private'
+      // Manual fields - return undefined to allow manual addition
+      case 'channel':
+      case 'tags':
+      case 'description':
+        return undefined
       default:
         return undefined
     }

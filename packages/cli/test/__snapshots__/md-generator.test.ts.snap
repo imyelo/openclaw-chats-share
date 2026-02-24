@@ -25,15 +25,6 @@ Let me write that to a file.
 
 :::{type=custom,collapsed=true}
 🔧 **write** · /test.md
-:::
-
----
-
-**tool** · 2026-02-17T23:03:00.000Z
-
-Successfully wrote 100 bytes to /test.md
-
-:::{type=custom,collapsed=true}
 ✅ **write** · Successfully wrote 100 bytes to /test.md
 :::"
 `;
@@ -46,6 +37,7 @@ sessionId: "test-session-123"
 model: "unknown"
 totalMessages: 4
 totalTokens: 0
+visibility: "private"
 participants:
   user:
     role: "human"
@@ -77,15 +69,6 @@ Let me write that to a file.
 
 :::{type=custom,collapsed=true}
 🔧 **write** · /test.md
-:::
-
----
-
-**tool** · 2026-02-17T23:03:00.000Z
-
-Successfully wrote 100 bytes to /test.md
-
-:::{type=custom,collapsed=true}
 ✅ **write** · Successfully wrote 100 bytes to /test.md
 :::"
 `;
@@ -115,15 +98,6 @@ Let me write that to a file.
 
 :::{type=custom,collapsed=true}
 🔧 **write** · /test.md
-:::
-
----
-
-**tool**
-
-Successfully wrote 100 bytes to /test.md
-
-:::{type=custom,collapsed=true}
 ✅ **write** · Successfully wrote 100 bytes to /test.md
 :::"
 `;
@@ -136,6 +110,7 @@ sessionId: "test-session-123"
 model: "unknown"
 totalMessages: 1
 totalTokens: 30
+visibility: "private"
 participants:
   user:
     role: "human"
@@ -176,10 +151,6 @@ exports[`MDGenerator - additional cases should render error tool result 1`] = `
 
 ---
 
-**tool** · 2026-02-17T23:02:38.166Z
-
-File not found
-
 :::{type=error,collapsed=false}
 ❌ **read** · File not found
 :::"
@@ -217,6 +188,7 @@ sessionId: "test-session-123"
 model: "unknown"
 totalMessages: 4
 totalTokens: 0
+visibility: "private"
 participants:
   user:
     role: "human"
@@ -248,15 +220,80 @@ Let me write that to a file.
 
 :::{type=custom,collapsed=true}
 🔧 **write** · /test.md
+✅ **write** · Successfully wrote 100 bytes to /test.md
+:::"
+`;
+
+exports[`sample-session-2.jsonl full pipeline should generate markdown from sample-session-2.jsonl 1`] = `
+"---
+title: "session-export"
+date: "2026-02-17"
+sessionId: "session-001"
+model: "MiniMax-M2.5"
+totalMessages: 4
+totalTokens: 650
+visibility: "private"
+participants:
+  user:
+    role: "human"
+  assistant:
+    role: "agent"
+    model: "MiniMax-M2.5"
+---
+
+# session-export
+
+> 2026-02-17
+
+---
+
+:::{type=session,collapsed=true}
+Session started (/home/agent/workspace)
 :::
 
 ---
 
-**tool** · 2026-02-17T23:03:00.000Z
+:::{type=custom,collapsed=true}
+Model changed: MiniMax-M2.5 (minimax)
+:::
 
-Successfully wrote 100 bytes to /test.md
+---
+
+:::{type=thinking_level_change,collapsed=true}
+🧠 **Thinking** level: off
+:::
+
+---
 
 :::{type=custom,collapsed=true}
-✅ **write** · Successfully wrote 100 bytes to /test.md
-:::"
+Model snapshot: MiniMax-M2.5 (minimax)
+:::
+
+---
+
+**user** · 2026-02-17T12:00:01.000Z
+
+Hello, this is a test message
+
+---
+
+**assistant** · 2026-02-17T12:00:02.000Z
+
+:::{type=thinking_level_change,collapsed=true}
+🧠 **Thinking**
+Assistant thinking process here
+:::
+
+Assistant response text
+
+:::{type=custom,collapsed=true}
+🔧 **write** · /test.txt
+✅ **write** · Successfully wrote 100 bytes to /test.txt
+:::
+
+---
+
+**assistant** · 2026-02-17T12:00:04.000Z
+
+Final assistant message"
 `;

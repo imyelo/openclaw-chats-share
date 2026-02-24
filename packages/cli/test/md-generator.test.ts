@@ -193,3 +193,22 @@ describe('generateMD convenience function', () => {
     }
   })
 })
+
+describe('sample-session-2.jsonl full pipeline', () => {
+  it('should generate markdown from sample-session-2.jsonl', async () => {
+    const { parseSession } = await import('../src/index')
+    const { tmpdir } = await import('node:os')
+    const { join } = await import('node:path')
+    const { readFile, rm } = await import('node:fs/promises')
+
+    const session = await parseSession(`${import.meta.dir}/fixtures/sample-session-2.jsonl`)
+    const outPath = join(tmpdir(), `md-generator-sample-2-${Date.now()}.md`)
+    try {
+      await generateMD(session, DEFAULT_CONSTRAINT, outPath)
+      const content = await readFile(outPath, 'utf-8')
+      expect(content).toMatchSnapshot()
+    } finally {
+      await rm(outPath, { force: true })
+    }
+  })
+})

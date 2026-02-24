@@ -40,8 +40,8 @@ The CLI parses Openclaw `session.log` files — JSONL where each line is a JSON 
 ```json
 {
   "type": "message",
-  "id": "f21fcd99",
-  "parentId": "a26076a7",
+  "id": "abcdefgh",
+  "parentId": "ijklmnop",
   "timestamp": "2026-02-15T06:13:50.514Z",
   "message": {
     "role": "user",
@@ -57,6 +57,63 @@ The CLI parses Openclaw `session.log` files — JSONL where each line is a JSON 
 ```
 
 **Message roles:** `user`, `assistant`, `toolResult`
+
+### `toolResult` role details
+
+When `message.role` is `toolResult`, the `message` object contains additional fields:
+
+```json
+{
+  "type": "message",
+  "id": "abcdefgh",
+  "parentId": "ijklmnop",
+  "timestamp": "2026-02-17T23:02:52.110Z",
+  "message": {
+    "role": "toolResult",
+    "toolCallId": "call_function_ku2otjcs93sj_1",
+    "toolName": "write",
+    "content": [
+      { "type": "text", "text": "Successfully wrote 752 bytes to /tmp/foobar.md" }
+    ],
+    "isError": false,
+    "details": {
+      "diff": "...",
+      "firstChangedLine": 36
+    },
+    "timestamp": 1771369372104
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `toolCallId` | string | ID of the tool call this result responds to |
+| `toolName` | string | Name of the tool that was executed |
+| `isError` | boolean | Whether the tool execution failed |
+| `details` | object | Tool-specific metadata (e.g., diff for edit tool) |
+
+### `message.usage` details
+
+Assistant messages include usage statistics:
+
+```json
+{
+  "usage": {
+    "input": 8,
+    "output": 458,
+    "cacheRead": 1260,
+    "cacheWrite": 9118,
+    "totalTokens": 10844,
+    "cost": {
+      "input": 0.00012,
+      "output": 0.02748,
+      "cacheRead": 0.00252,
+      "cacheWrite": 0.09118,
+      "total": 0.1213
+    }
+  }
+}
+```
 
 ### `session`
 
@@ -107,8 +164,8 @@ The CLI parses Openclaw `session.log` files — JSONL where each line is a JSON 
     "modelApi": "anthropic-messages",
     "modelId": "MiniMax-M2.5"
   },
-  "id": "a26076a7",
-  "parentId": "8e453aed",
+  "id": "abcdefgh",
+  "parentId": "ijklmnop",
   "timestamp": "2026-02-15T06:13:50.508Z"
 }
 ```
@@ -118,7 +175,7 @@ The CLI parses Openclaw `session.log` files — JSONL where each line is a JSON 
 ```json
 {
   "type": "compaction",
-  "id": "5c810377",
+  "id": "abcdefgh",
   "parentId": "26c4b7ec",
   "timestamp": "2026-02-15T08:56:28.207Z",
   "summary": "## Goal\n1. Analyze...",
@@ -154,10 +211,22 @@ Each `message` event has a `content` array. Element types:
 {
   "type": "toolCall",
   "id": "call_function_xxx",
-  "name": "exec",
-  "arguments": { "command": "ls -la" }
+  "name": "write",
+  "arguments": {
+    "content": "# Document content\n\n...",
+    "file_path": "/home/user/notes.md"
+  }
 }
 ```
+
+Common tool argument fields:
+
+| Tool | Arguments |
+|------|-----------|
+| `read` | `file_path` |
+| `write` | `file_path`, `content` |
+| `edit` | `file_path`, `oldText`, `newText` |
+| `exec` | `command` |
 
 ### `image`
 

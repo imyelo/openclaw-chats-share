@@ -134,11 +134,47 @@ invalid json line
     expect(result.meta.id).toBe('unknown')
     expect(result.meta.version).toBe(0)
   })
+
+  it('should clean Discord message metadata from user messages', () => {
+    const parser = new LogParser()
+    const content = `{"type":"session","version":3,"id":"s1","timestamp":"2026-01-01T00:00:00.000Z","cwd":"/"}
+{"type":"message","id":"msg1","parentId":null,"timestamp":"2026-01-01T00:00:01.000Z","message":{"role":"user","content":[{"type":"text","text":"[Discord Guild #lambda-test channel id:1234567890123456789 Wed 2026-02-18 07:02 GMT+8] yelo (xxx): some ideas forbar [from: yelo (1234567890123456789)]"}],"timestamp":1234567890000}}`
+
+    const result = parser.parseContent(content)
+    expect(result.messages[0].content).toBe('some ideas forbar')
+  })
+
+  it('should handle user messages without Discord metadata', () => {
+    const parser = new LogParser()
+    const content = `{"type":"session","version":3,"id":"s1","timestamp":"2026-01-01T00:00:00.000Z","cwd":"/"}
+{"type":"message","id":"msg1","parentId":null,"timestamp":"2026-01-01T00:00:01.000Z","message":{"role":"user","content":[{"type":"text","text":"Regular user message"}]}}`
+
+    const result = parser.parseContent(content)
+    expect(result.messages[0].content).toBe('Regular user message')
+  })
 })
 
 describe('parseSession (convenience function)', () => {
   it('should work as convenience function', async () => {
     const result = await parseSession(`${import.meta.dir}/fixtures/sample-session.jsonl`)
     expect(result.meta).toBeDefined()
+  })
+
+  it('should parse sample-session-2.jsonl with all event types', async () => {
+    const result = await parseSession(`${import.meta.dir}/fixtures/sample-session-2.jsonl`)
+
+    // Verify session meta
+    expect(result.meta.id).toBe('session-001')
+    expect(result.meta.cwd).toBe('/home/agent/workspace')
+
+    // Verify messages
+    expect(result.messages).toHaveLength(4)
+
+    // Verify events include session, model_change, thinking_level_change, custom
+    const eventTypes = result.events.map(e => e.type)
+    expect(eventTypes).toContain('session')
+    expect(eventTypes).toContain('model_change')
+    expect(eventTypes).toContain('thinking_level_change')
+    expect(eventTypes).toContain('custom')
   })
 })

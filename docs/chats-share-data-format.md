@@ -18,6 +18,8 @@ This directory contains Openclaw session export files in Markdown format, genera
 | `description` | Manual | No | Brief description for index display | `Debugging a tricky async issue` |
 | `participants` | CLI / Manual | No | Maps each participant name to `{ role: "human" \| "agent" }`; used by the web to style messages correctly | see example below |
 
+> **Note:** The JSONL input contains additional internal metadata fields (e.g., `version`, `cwd`, `parentId`, `thinkingSignature`, `usage.cost`) that are used during processing but not persisted to the markdown output. Unknown event types or unrecognized fields are silently ignored.
+
 ## Visibility
 
 - `visibility: public` — Chat will appear on the homepage index
@@ -30,6 +32,8 @@ Use the format: `YYYYMMDD-{slug}.md`
 Example: `20260215-debugging-async-issue.md`
 
 ## Content Format
+
+> **Note:** When user messages come from external channels (Discord, Telegram, etc.), the CLI automatically cleans up metadata prefixes and suffixes from the message text. For example, `[Discord Guild #channel ...] username: actual message [from: user]` becomes `actual message`.
 
 ```markdown
 ---
@@ -126,8 +130,54 @@ The `collapsed` attribute controls the initial state of the panel: `true` collap
 |------|----------|----------|
 | `session` | green | Session start event |
 | `thinking_level_change` | gray | Thinking level change event **or** model reasoning content inside a message |
-| `custom` | indigo | Custom events (e.g. model-snapshot, plugin calls) |
+| `custom` | indigo | Custom events (model_change, model-snapshot, compaction, plugin calls) |
 | `error` | red | Error events; typically `collapsed=false` so errors are visible by default |
+
+### Event blocks
+
+Non-message events (`model_change`, `thinking_level_change`, `custom`, `compaction`) render as collapsible panels:
+
+```markdown
+:::{type=custom,collapsed=true}
+Model changed: MiniMax-M2.5 (minimax)
+:::
+
+:::{type=thinking_level_change,collapsed=true}
+🧠 **Thinking** level: off
+:::
+
+:::{type=custom,collapsed=true}
+Model snapshot: MiniMax-M2.5 (minimax)
+:::
+
+:::{type=custom,collapsed=true}
+Context compacted (12345 tokens)
+:::
+```
+
+### Tool calls with results
+
+When a tool is called and returns a result, both the call and result are displayed together in one collapsible block:
+
+```markdown
+**assistant** · 2026-02-15T06:14:05.123Z
+
+:::{type=custom,collapsed=true}
+🔧 **write** · /tmp/foobar.md
+✅ **write** · Successfully wrote 1024 bytes to /tmp/foobar.md
+:::
+
+Here is my response after the tool executed.
+```
+
+If the tool call fails, the block uses the `error` type and is expanded by default:
+
+```markdown
+:::{type=error,collapsed=false}
+🔧 **read** · /nonexistent/file.txt
+❌ **read** · File not found
+:::
+```
 
 ### Thinking content inside messages
 

@@ -40,6 +40,52 @@ async function getDataDir(): Promise<string> {
 }
 
 /**
+ * Split message blocks by --- separator, but ignore --- inside :::{...} fenced directive blocks
+ */
+export function splitMessageBlocks(content: string): string[] {
+  const blocks: string[] = []
+  let current = ''
+  let inFencedBlock = false
+
+  const lines = content.split('\n')
+
+  for (const line of lines) {
+    // Check for fenced directive start: :::{...}
+    if (!inFencedBlock && line.match(/^:::\{.+\}$/)) {
+      inFencedBlock = true
+      current += (current ? '\n' : '') + line
+      continue
+    }
+
+    // Check for fenced directive end: :::
+    if (inFencedBlock && line === ':::') {
+      inFencedBlock = false
+      current += `\n${line}`
+      continue
+    }
+
+    // Check for --- separator (only when not in fenced block)
+    if (!inFencedBlock && line === '---') {
+      if (current.trim()) {
+        blocks.push(current)
+      }
+      current = ''
+      continue
+    }
+
+    current += (current ? '\n' : '') + line
+  }
+
+  // Add remaining block
+  if (current.trim()) {
+    blocks.push(current)
+  }
+
+  // Remove first block (title/content before first ---)
+  return blocks.slice(1)
+}
+
+/**
  * Fetch all share chats from chats/, including parsed message blocks
  */
 export async function getAllChatsWithContent(): Promise<ChatWithContent[]> {
@@ -70,7 +116,7 @@ export async function getAllChatsWithContent(): Promise<ChatWithContent[]> {
         data.participants && typeof data.participants === 'object'
           ? (data.participants as Record<string, { role: 'human' | 'agent'; model?: string }>)
           : undefined,
-      messageBlocks: content.split(/\n---\n/).slice(1),
+      messageBlocks: splitMessageBlocks(content),
     }
   })
 }
