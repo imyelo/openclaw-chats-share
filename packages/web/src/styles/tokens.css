@@ -10,7 +10,8 @@
 :root {
   /* Typography */
   --font-mono: "IBM Plex Mono", monospace;
-  --font-serif: "Libre Baskerville", Georgia, serif;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --font-serif: "Fraunces", Georgia, serif;
 
   /* Backgrounds */
   --bg-primary:   #0a0a0a;
@@ -32,10 +33,10 @@
   --glow:   rgba(212, 168, 83, 0.15);
 
   /* Message bubbles */
-  --user-msg-bg:          #0f0f0f;
-  --user-msg-border:      #2d2d2d;
-  --assistant-msg-bg:     #121212;
-  --assistant-msg-border: #252525;
+  --user-msg-bg:          #1a1a1a;
+  --user-msg-border:      #262626;
+  --assistant-msg-bg:     #0f0f0f;
+  --assistant-msg-border: #1f1f1f;
 
   /* Collapsible panel type colours */
   --collapsible-error-border:   #ef4444;

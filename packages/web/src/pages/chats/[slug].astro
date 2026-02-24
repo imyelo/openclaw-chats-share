@@ -30,7 +30,8 @@ const messages = messageBlocks
     
     const author = headerMatch[1];
     const timestamp = headerMatch[2].trim();
-    const isUser = author.toLowerCase() === 'user';
+    const authorLower = author.toLowerCase();
+    const isUser = !authorLower.includes('agent') && !authorLower.includes('assistant');
     
     // The rest of the block content after the header
     const contentBody = block.substring(headerMatch.index + headerMatch[0].length).trim();
