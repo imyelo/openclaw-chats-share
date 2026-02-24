@@ -214,7 +214,7 @@ const siteDescription = config.template?.options?.description || 'OpenClaw Chats
       ) : (
         <div class="chats-list">
           {chats.map(chat => (
-            <a href={`/share/${chat.slug}`} class="chat-item">
+            <a href={`/chats/${chat.slug}`} class="chat-item">
               <div class="chat-topic">{chat.title}</div>
               <div class="chat-meta">
                 {chat.channel && (
