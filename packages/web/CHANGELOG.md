@@ -1,5 +1,14 @@
 # openclaw-chats-share-web
 
+## 0.3.0
+
+### Minor Changes
+
+- 0756090: Move chat detail route from /share/[slug] to /chats/[slug]
+
+  - Chat detail pages are now accessible at `/chats/[slug]` instead of `/share/[slug]`
+  - This provides a cleaner URL structure for viewing shared chats
+
 ## 0.2.0
 
 ### Minor Changes
