@@ -141,7 +141,10 @@ export const CollapsibleMessage = memo(function CollapsibleMessage({
             )}
           >
             <div className={cn(styles.collapsibleBody, styles.prose)}>
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                urlTransform={(url: string) => url}
+              >{content}</ReactMarkdown>
             </div>
           </div>
         </div>
