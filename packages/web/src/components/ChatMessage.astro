@@ -165,6 +165,26 @@ const htmlContent = md.parse(content, { async: false }) as string
     overflow-x: auto;
     margin-top: 0.75em;
     margin-bottom: 0.75em;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .message-content :global(pre::-webkit-scrollbar) {
+    height: 6px;
+    width: 6px;
+  }
+
+  .message-content :global(pre::-webkit-scrollbar-track) {
+    background: transparent;
+  }
+
+  .message-content :global(pre::-webkit-scrollbar-thumb) {
+    background: var(--border);
+    border-radius: 3px;
+  }
+
+  .message-content :global(pre::-webkit-scrollbar-thumb:hover) {
+    background: var(--text-muted);
   }
 
   .message-content :global(pre code) {
@@ -172,7 +192,7 @@ const htmlContent = md.parse(content, { async: false }) as string
     padding: 0;
     border-radius: 0;
     color: var(--text-primary);
-    font-size: 1em;
+    font-size: 0.875em;
   }
 
   .message-content :global(blockquote) {

@@ -21,8 +21,8 @@ export const SPEC_COLOR_MAP: Record<string, { borderColor: string; color: string
     color: '#34d399',
   },
   custom: {
-    borderColor: '#6366f1',
-    color: '#818cf8',
+    borderColor: '#6b7280',
+    color: '#9ca3af',
   },
   // Fallback colors (manual color prop)
   gray: { borderColor: '#6b7280', color: '#9ca3af' },
@@ -44,9 +44,9 @@ export const COLLAPSIBLE_TYPE_STYLES: Record<string, { accent: string; hoverBg: 
     iconBg: 'rgba(16, 185, 129, 0.15)',
   },
   custom: {
-    accent: '#818cf8',
-    hoverBg: 'rgba(99, 102, 241, 0.1)',
-    iconBg: 'rgba(99, 102, 241, 0.15)',
+    accent: '#9ca3af',
+    hoverBg: 'rgba(107, 114, 128, 0.1)',
+    iconBg: 'rgba(107, 114, 128, 0.15)',
   },
   thinking_level_change: {
     accent: '#9ca3af',
