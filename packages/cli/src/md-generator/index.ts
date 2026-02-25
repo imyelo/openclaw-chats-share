@@ -8,6 +8,21 @@ import { dirname, resolve } from 'node:path'
 import type { FormatConstraint } from '../format-constraint/index.js'
 import type { ParsedMessage, ParsedSession, SessionEvent, ToolResultImage } from '../session-log-parser/index.js'
 
+/**
+ * Wrap content in a fenced code block using the minimum fence length that
+ * cannot appear inside the content. Per CommonMark spec, a fence of N
+ * backticks closes at the next line of ≥ N backticks, so using (longest run
+ * in content) + 1 is always safe regardless of what the content contains.
+ */
+function fenceBlock(content: string): string {
+  let maxRun = 2 // fence minimum is 3, so floor is 2
+  for (const m of content.matchAll(/`+/g)) {
+    if (m[0].length > maxRun) maxRun = m[0].length
+  }
+  const fence = '`'.repeat(maxRun + 1)
+  return `${fence}\n${content}\n${fence}`
+}
+
 export interface GeneratorOptions {
   includeFrontMatter?: boolean
   includeTimestamps?: boolean
@@ -257,10 +272,9 @@ export class MDGenerator {
           blocks.push(argDetails)
         }
 
-        // Add result content (wrap in code block to prevent markdown rendering)
-        // Use 4 backticks to avoid nesting issues if content contains ``` code blocks
+        // Add result content (wrap in a code block to prevent markdown rendering)
         blocks.push('***')
-        blocks.push(`\`\`\`\`\n${tr.content}\n\`\`\`\``)
+        blocks.push(fenceBlock(tr.content))
 
         // Add images if present (from toolResultMsg.images)
         blocks.push(...this.renderImages(toolResultMsg.images))

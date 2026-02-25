@@ -33,9 +33,9 @@ Let me write that to a file.
 test content
 \`\`\`
 ***
-\`\`\`\`
+\`\`\`
 Successfully wrote 100 bytes to /test.md
-\`\`\`\`
+\`\`\`
 :::"
 `;
 
@@ -87,9 +87,9 @@ Let me write that to a file.
 test content
 \`\`\`
 ***
-\`\`\`\`
+\`\`\`
 Successfully wrote 100 bytes to /test.md
-\`\`\`\`
+\`\`\`
 :::"
 `;
 
@@ -126,9 +126,9 @@ Let me write that to a file.
 test content
 \`\`\`
 ***
-\`\`\`\`
+\`\`\`
 Successfully wrote 100 bytes to /test.md
-\`\`\`\`
+\`\`\`
 :::"
 `;
 
@@ -258,9 +258,9 @@ Let me write that to a file.
 test content
 \`\`\`
 ***
-\`\`\`\`
+\`\`\`
 Successfully wrote 100 bytes to /test.md
-\`\`\`\`
+\`\`\`
 :::"
 `;
 
@@ -336,9 +336,9 @@ Assistant response text
 test
 \`\`\`
 ***
-\`\`\`\`
+\`\`\`
 Successfully wrote 100 bytes to /test.txt
-\`\`\`\`
+\`\`\`
 :::
 
 ---

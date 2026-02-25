@@ -2,7 +2,7 @@
 import ChatLayout from '../../layouts/ChatLayout.astro';
 import ChatMessage from '../../components/ChatMessage.astro';
 import { CollapsibleMessage } from '../../components/CollapsibleMessage';
-import { AVATAR_COLORS, MESSAGE_TYPE_INFO } from '../../constants/index.js';
+import { AVATAR_COLORS } from '../../constants/index.js';
 import { getAllChatsWithContent, type ChatWithContent } from '../../lib/chats';
 
 export async function getStaticPaths() {
@@ -30,91 +30,11 @@ function isSpeakerAgent(author: string): boolean {
   return lower.includes('agent') || lower.includes('assistant');
 }
 
-// Parse message blocks into structured data
-const messages = messageBlocks
-  .filter(block => block.trim())
-  .flatMap(block => {
-    // Regular message header check
-    const headerMatch = block.match(/\*\*(.*?)\*\* · (.+)/);
-    if (!headerMatch) return [];
-
-    const author = headerMatch[1];
-    const timestamp = headerMatch[2].trim();
-    const isUser = !isSpeakerAgent(author);
-    
-    // The rest of the block content after the header
-    const contentBody = block.substring(headerMatch.index + headerMatch[0].length).trim();
-    
-    // Check if the content contains a collapsible block
-    const collapsibleRegex = /:::\{type=(\w+),collapsed=(\w+)\}\n(.*?)\n([\s\S]*?):::/g;
-    
-    const parsedMessages = [];
-    let lastIndex = 0;
-    let match;
-    
-    while ((match = collapsibleRegex.exec(contentBody)) !== null) {
-      // Add text before the collapsible block if it exists
-      const preText = contentBody.substring(lastIndex, match.index).trim();
-      if (preText) {
-        parsedMessages.push({
-          type: 'message',
-          author,
-          timestamp,
-          content: preText,
-          isUser,
-        });
-      }
-      
-      const type = match[1];
-      const collapsed = match[2] === 'true';
-      const labelLine = match[3] || '';
-      // Match pattern like "🔧 **edit** · /path", "⚙️ **Plugin Call: GitHub Action**", or "🧠 **Thinking**"
-      // Icon is before **, label is the bold text, content is after ** (optional trailing space)
-      const labelMatch = labelLine.match(/^(.*?) \*\*(.+?)\*\* ?/);
-      let icon = labelMatch ? labelMatch[1].trim() : '';
-      let label = labelMatch ? labelMatch[2].trim() : '';
-
-      // If label extraction failed, check MESSAGE_TYPE_INFO for known types
-      if (!label && type in MESSAGE_TYPE_INFO) {
-        icon = MESSAGE_TYPE_INFO[type].icon;
-        label = MESSAGE_TYPE_INFO[type].label;
-      } else if (!label) {
-        label = type;
-      }
-
-      // Use the content from match[4] directly, stripping leading *** or --- separators
-      const content = match[4].trim().replace(/^[\*\-]{3,}\n?/, '')
-      
-      parsedMessages.push({
-        type: 'collapsible',
-        collapsibleType: type,
-        icon,
-        label,
-        collapsed,
-        content,
-        author,
-        timestamp,
-        isUser,
-      });
-      
-      lastIndex = collapsibleRegex.lastIndex;
-    }
-    
-    // Add any remaining text after the last collapsible block
-    const remainingText = contentBody.substring(lastIndex).trim();
-    if (remainingText) {
-      parsedMessages.push({
-        type: 'message',
-        author,
-        timestamp,
-        content: remainingText,
-        isUser,
-      });
-    }
-    
-    return parsedMessages;
-  })
-  .filter(Boolean);
+// Flatten ParsedMessageBlock[] into a renderable list
+const messages = messageBlocks.flatMap(block => {
+  const isUser = !isSpeakerAgent(block.author);
+  return block.segments.map(seg => ({ ...seg, author: block.author, timestamp: block.timestamp, isUser }));
+});
 
 // Create avatar color mapping for unique human authors
 const authorColorMap = new Map<string, number>();
@@ -138,16 +58,16 @@ messages.forEach((msg: any) => {
     const isFirstInGroup = index === 0 || messages[index - 1].author !== msg.author;
     const isLastInGroup = index === messages.length - 1 || messages[index + 1].author !== msg.author;
 
-    if (msg.type === 'collapsible') {
+    if (msg.kind === 'directive') {
       const avatarColorIndex = isSpeakerAgent(msg.author) ? undefined : authorColorMap.get(msg.author);
       return (
         <CollapsibleMessage
           client:load
-          type={msg.collapsibleType}
+          type={msg.type}
           icon={msg.icon}
           label={msg.label}
           collapsed={msg.collapsed}
-          color={msg.collapsibleType}
+          color={msg.type}
           content={msg.content}
           author={msg.author}
           timestamp={msg.timestamp}
