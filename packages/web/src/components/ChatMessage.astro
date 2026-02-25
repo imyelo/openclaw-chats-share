@@ -39,6 +39,7 @@ const htmlContent = md.parse(content, { async: false }) as string
     isLastInGroup ? 'last-in-group' : 'not-last-in-group',
     !isFirstInGroup && 'not-first-in-group',
   ]}
+  data-author={author}
 >
   <MessageHeader
     author={author}

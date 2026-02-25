@@ -20,6 +20,10 @@
   margin-top: 1.25rem;
 }
 
+.hiddenHeader {
+  display: none !important;
+}
+
 .avatar {
   width: 1.25rem;
   height: 1.25rem;

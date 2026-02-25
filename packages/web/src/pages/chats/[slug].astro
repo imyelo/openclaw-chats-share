@@ -54,6 +54,12 @@ messages.forEach((msg: any) => {
   date={date}
   messageCount={totalMessages}
 >
+  <div class="chat-controls">
+    <button id="toggle-collapsible-btn" class="toggle-btn" aria-label="Hide all collapsible messages" aria-pressed="false">
+      Hide all collapsible messages
+    </button>
+  </div>
+
   {messages.map((msg: any, index: number) => {
     const isFirstInGroup = index === 0 || messages[index - 1].author !== msg.author;
     const isLastInGroup = index === messages.length - 1 || messages[index + 1].author !== msg.author;
@@ -100,6 +106,25 @@ messages.forEach((msg: any) => {
 </ChatLayout>
 
 <style>
+  .chat-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 2rem;
+  }
+  .toggle-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+  }
+  .toggle-btn:hover {
+    color: var(--text-primary);
+  }
   .back-link-container {
     margin-top: 4rem;
     display: flex;
@@ -124,3 +149,74 @@ messages.forEach((msg: any) => {
     font-family: system-ui, -apple-system, sans-serif;
   }
 </style>
+
+<style is:global>
+  body.hide-collapsible-messages .global-collapsible-message {
+    display: none !important;
+  }
+</style>
+
+<script>
+  function updateHeadersVisibility(isHidden) {
+    // Select all messages in order
+    const articles = document.querySelectorAll('article[data-author]');
+    let lastVisibleAuthor = null;
+
+    articles.forEach((article) => {
+      // Check if this article is currently hidden by our global class
+      const isCollapsible = article.classList.contains('global-collapsible-message');
+      const isArticleHidden = isHidden && isCollapsible;
+
+      const header = article.querySelector('[data-header="true"]');
+      if (!header) return;
+
+      if (isArticleHidden) {
+        // It's hidden, don't update lastVisibleAuthor
+        return;
+      }
+
+      const author = article.getAttribute('data-author');
+
+      if (author !== lastVisibleAuthor) {
+        // This is the first visible message for this author, show header
+        header.classList.remove('hidden-header');
+        article.classList.remove('not-first-in-group');
+      } else {
+        // Same author as previous visible message, hide header
+        header.classList.add('hidden-header');
+        article.classList.add('not-first-in-group');
+      }
+
+      lastVisibleAuthor = author;
+    });
+  }
+
+  function setBtnState(btn, isHidden) {
+    const label = isHidden ? 'Show all collapsible messages' : 'Hide all collapsible messages';
+    btn.textContent = label;
+    btn.setAttribute('aria-label', label);
+    btn.setAttribute('aria-pressed', String(isHidden));
+  }
+
+  function setupToggle() {
+    const btn = document.getElementById('toggle-collapsible-btn');
+    if (!btn) return;
+
+    // Body class persists across Astro page transitions; sync button state on every page load.
+    const isCurrentlyHidden = document.body.classList.contains('hide-collapsible-messages');
+    setBtnState(btn, isCurrentlyHidden);
+    updateHeadersVisibility(isCurrentlyHidden);
+
+    btn.addEventListener('click', () => {
+      document.body.classList.toggle('hide-collapsible-messages');
+      const isHidden = document.body.classList.contains('hide-collapsible-messages');
+      setBtnState(btn, isHidden);
+      updateHeadersVisibility(isHidden);
+    });
+  }
+
+  // Module scripts are deferred and run after the DOM is ready.
+  // astro:page-load only fires when View Transitions (ClientRouter) are enabled,
+  // so we call setupToggle() directly here instead.
+  setupToggle();
+</script>

@@ -22,8 +22,8 @@ if (avatarColorIndex !== undefined) {
 }
 ---
 
-{isFirstInGroup && author && timestamp && (
-  <div class="message-header">
+{author && timestamp && (
+  <div class:list={['message-header', !isFirstInGroup && 'hidden-header']} data-header="true">
     <div
       class:list={['avatar', isAgent ? 'avatar-agent' : 'avatar-user']}
       style={avatarBg ? `background-color: ${avatarBg}; color: ${avatarColor}` : undefined}
@@ -38,6 +38,9 @@ if (avatarColorIndex !== undefined) {
 )}
 
 <style>
+  .hidden-header {
+    display: none !important;
+  }
   .message-header {
     display: flex;
     align-items: center;

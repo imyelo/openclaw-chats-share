@@ -151,8 +151,8 @@ function parseMessageBlock(raw: string): ParsedMessageBlock | null {
 
     const attrs = parseDirectiveAttrs(m[1])
     const type = attrs.type ?? m[1]
-    // collapsed defaults true; only explicitly `false` opens by default
-    const collapsed = attrs.collapsed !== 'false'
+    // collapsed defaults false; only explicitly `true` closes by default
+    const collapsed = attrs.collapsed === 'true'
 
     const directiveBody = m[2]
     const firstNl = directiveBody.indexOf('\n')

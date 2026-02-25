@@ -22,7 +22,7 @@ function MessageHeader({
   isFirstInGroup?: boolean
   avatarColorIndex?: number
 }) {
-  if (!isFirstInGroup || !author || !timestamp) {
+  if (!author || !timestamp) {
     return null
   }
 
@@ -35,7 +35,10 @@ function MessageHeader({
   }
 
   return (
-    <div className={styles.messageHeader}>
+    <div
+      className={cn(styles.messageHeader, !isFirstInGroup && styles.hiddenHeader)}
+      data-header="true"
+    >
       <div
         className={cn(styles.avatar, isAgent ? styles.avatarAgent : styles.avatarUser)}
         style={avatarStyle ? { backgroundColor: avatarStyle.bg, color: avatarStyle.text } : undefined}
@@ -57,7 +60,7 @@ export const CollapsibleMessage = memo(function CollapsibleMessage({
   type,
   icon,
   label,
-  collapsed = true,
+  collapsed = false,
   color,
   content,
   author,
@@ -91,7 +94,11 @@ export const CollapsibleMessage = memo(function CollapsibleMessage({
 
   return (
     <article
+      data-author={author}
       className={cn(
+        // global-collapsible-message: CSS hook used by [slug].astro to batch-hide
+        // all directive messages via body.hide-collapsible-messages.
+        'global-collapsible-message',
         styles.collapsible,
         isLastInGroup ? styles.collapsibleLastInGroup : styles.collapsibleNotLastInGroup,
         !isFirstInGroup && styles.collapsibleNotFirstInGroup
