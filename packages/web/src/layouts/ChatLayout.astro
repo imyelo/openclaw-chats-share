@@ -75,6 +75,33 @@ const { title, channel, model, date, messageCount } = Astro.props;
         font-size: 0.5rem;
       }
 
+      /* Page nav */
+      .page-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-family: var(--font-mono);
+        font-size: 0.625rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        opacity: 0.5;
+        transition: color 0.15s ease, opacity 0.15s ease;
+      }
+
+      .back-link:hover {
+        color: var(--text-primary);
+        opacity: 1;
+      }
+
       /* Decorative corners */
       .corner-mark {
         position: fixed;
@@ -99,6 +126,13 @@ const { title, channel, model, date, messageCount } = Astro.props;
     <div class="corner-mark bottom-right"></div>
 
     <div class="layout-container">
+      <nav class="page-nav">
+        <a href="/" class="back-link">
+          <span aria-hidden="true">←</span> archive
+        </a>
+        <slot name="controls" />
+      </nav>
+
       <div class="layout-header-wrapper">
         <header class="layout-header-title">{title}</header>
         <p class="layout-meta">
