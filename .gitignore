@@ -24,5 +24,8 @@ packages/cli/dist
 packages/web/dist
 packages/web/.astro
 
+# Worktrees
+.worktrees
+
 # Agents
 skills-lock.json
