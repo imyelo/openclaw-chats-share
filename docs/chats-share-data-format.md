@@ -15,6 +15,7 @@ This directory contains Openclaw session export files in Markdown format, genera
 | `totalTokens` | Sum of `usage.totalTokens` | No | Total tokens consumed | `12345` |
 | `tags` | Manual | No | Tag array for categorization | `[coding, debug]` |
 | `visibility` | Manual | No | Controls index visibility (`public` or `private`) | `private` (default) |
+| `defaultShowProcess` | CLI / Manual | No | If `true`, process blocks (e.g. thinking/process) are shown by default | `false` |
 | `description` | Manual | No | Brief description for index display | `Debugging a tricky async issue` |
 | `participants` | CLI / Manual | No | Maps each participant name to `{ role: "human" \| "agent" }`; used by the web to style messages correctly | see example below |
 
