@@ -17,8 +17,13 @@ interface Props {
 }
 
 const { chat } = Astro.props;
-const { title, channel, model, date, totalMessages, messageBlocks, participants } = chat;
+const { title, channel, model, date, totalMessages, messageBlocks, participants, defaultShowProcess = false } = chat;
 const displayTitle = title || '';
+
+// Determine if process messages should be shown by default based on frontmatter
+// defaultShowProcess: true -> show by default (collapsed: false)
+// defaultShowProcess: false/undefined -> hide by default (collapsed: true)
+const showProcessByDefault = defaultShowProcess;
 
 // Resolve whether a participant name is an agent.
 // Checks the frontmatter participants map first; falls back to keyword heuristic.
@@ -50,6 +55,11 @@ messages.forEach((msg: any) => {
 });
 ---
 
+<!-- Pass defaultShowProcess to client-side script via data attribute -->
+<script is:inline>
+  document.body.dataset.showProcessByDefault = String(!!{showProcessByDefault});
+</script>
+
 <ChatLayout
   title={displayTitle}
   channel={channel}
@@ -59,7 +69,7 @@ messages.forEach((msg: any) => {
   regularMessageCount={regularMessageCount}
 >
   {hasProcessMessages && (
-    <button slot="controls" id="toggle-collapsible-btn" class="toggle-btn" aria-label="Show process information" aria-pressed="true">
+    <button slot="controls" id="toggle-collapsible-btn" class="toggle-btn" aria-label="Show process information" aria-pressed={String(!showProcessByDefault)}>
       <span class="toggle-pip" aria-hidden="true"></span>
       <span class="toggle-text">show process</span>
     </button>
@@ -77,7 +87,7 @@ messages.forEach((msg: any) => {
           type={msg.type}
           icon={msg.icon}
           label={msg.label}
-          collapsed={msg.collapsed}
+          collapsed={msg.collapsed ?? !showProcessByDefault}
           content={msg.content}
           author={msg.author}
           timestamp={msg.timestamp}
@@ -279,19 +289,24 @@ messages.forEach((msg: any) => {
     const btn = document.getElementById('toggle-collapsible-btn');
     if (!btn) return;
 
-    // Default: process messages are hidden. Add the class if not already present
+    // Check frontmatter defaultShowProcess setting
+    const showProcessByDefault = document.body.dataset.showProcessByDefault === 'true';
+
+    // Default: process messages are hidden unless showProcessByDefault is true
+    // Add the class if not already present and not showing by default
     // (it may already be set if the user toggled during this tab session).
-    if (!document.body.classList.contains('hide-collapsible-messages')) {
+    const shouldHide = !showProcessByDefault;
+    if (shouldHide && !document.body.classList.contains('hide-collapsible-messages')) {
       document.body.classList.add('hide-collapsible-messages');
     }
 
-    // Hide all collapsibles immediately (no animation on initial load).
+    // Show or hide all collapsibles based on the default setting
     document.querySelectorAll('.global-collapsible-message').forEach(el => {
-      (el as HTMLElement).style.display = 'none';
+      (el as HTMLElement).style.display = shouldHide ? 'none' : '';
     });
 
-    setBtnState(btn, true);
-    updateHeadersVisibility(true);
+    setBtnState(btn, shouldHide);
+    updateHeadersVisibility(shouldHide);
 
     btn.addEventListener('click', () => {
       document.body.classList.toggle('hide-collapsible-messages');
