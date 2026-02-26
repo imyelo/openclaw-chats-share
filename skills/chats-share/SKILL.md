@@ -123,7 +123,21 @@ Save the converted content to: `{projectDir}/chats/.tmp/{timestamp}.md`
 9. Rename: `mv {temp} {projectDir}/chats/{YYYYMMDD}-{topic}.md`
 10. Redact sensitive info (e.g.: API keys, tokens, paths, emails, IPs) (see "Redact" section below)
 11. Confirm with user before commit: `git add {projectDir}/chats/{topic}.md && git commit -m "docs: add {topic}"`
-12. Confirm with user before push: `git push`
+12. Create new branch and push:
+    - Branch name: chat/{slug} (e.g., chat/20260215-debugging-async)
+    - git checkout -b chat/{slug}
+    - git add {projectDir}/chats/{topic}.md
+    - git commit -m "docs: add {topic}"
+    - git push -u origin chat/{slug}
+13. Show guidance message with PR URL:
+    ```
+    ✓ Branch pushed: chat/{slug}
+
+    Next steps:
+    1. Open https://github.com/{repo}/pull/new/chat/{slug}
+    2. Review and create PR
+    3. Or merge manually via GitHub UI
+    ```
 
 ## First Time Setup
 
