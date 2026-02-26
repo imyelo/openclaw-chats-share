@@ -6,6 +6,7 @@ channel: discord
 model: MiniMax-M2.5
 totalMessages: 10
 visibility: public
+defaultShowProcess: false
 description: Building a conversation sharing tool for AI agent interactions
 participants:
   Human 1:
