@@ -28,22 +28,97 @@ Share OpenClaw conversations as public web pages.
 
 1. **Pre-check**: Check if a `chats-share` project dir is configured in TOOLS.md
    - Read `~/.openclaw/workspace/TOOLS.md`
-   - If no project directory found → Run first-time setup (see "First Time Setup" section below)
+   - If no project directory found -> Run first-time setup (see "First Time Setup" section below)
 2. Load project dir (from TOOLS.md or arguments)
 3. Load `site` URL from `{projectDir}/chats-share.toml` (use as base for output URL)
 4. Find session:
    - List all sessions: `ls -t ~/.openclaw/agents/main/sessions/*.jsonl`
    - Filter by:
-     - `sessionId=xxx` → grep exact ID
-     - `topic=xxx` → grep topic keyword in content
-     - `current` → use most recent (first line after ls -t)
+     - `sessionId=xxx` -> grep exact ID
+     - `topic=xxx` -> grep topic keyword in content
+     - `current` -> use most recent (first line after ls -t)
    - Show candidates to user for confirmation
+
+### Phase 2: Choose Implementation Mode
+
+**How would you like to process this session?**
+
+1. **CLI Mode** (Recommended)
+   - Fast, handles large files (>1MB, >500 messages)
+   - Reliable parsing of all event types
+   - Less flexible
+
+2. **Agent Skills Mode**
+   - Flexible editing during parse
+   - Can summarize, redact, or transform on-the-fly
+   - Slower, may miss edge cases
+
+[1/2]
+
+#### CLI Mode
+
 5. Parse to temp: `npx openclaw-chats-share parse {session} -o {projectDir}/chats/.tmp/{timestamp}.md`
+
+#### Agent Skills Mode
+
+**Step 2a: Check file size**
+```bash
+ls -lh {session}.jsonl
+wc -l {session}.jsonl
+```
+
+**Step 2b: For large files (>1MB or >500 messages), strip base64/images, extract text**
+```bash
+jq -r '
+  if .type == "message" then
+    .message.content[]?.text // ""
+  elif .type == "thinking" then
+    "[Thinking]\n" + (.thinking // "")
+  elif .type == "tool_call" then
+    "[Tool Call]\n" + (.tool_calls[].name // "unknown") + "\n" + (.tool_calls[].arguments | tostring)
+  elif .type == "tool_result" then
+    "[Tool Result]\n" + (.toolResult.content[0:2000] // "")
+  elif .type == "custom" then
+    "[Custom] " + (.customType // "unknown") + " - " + (.data | tostring)
+  elif .type == "model_change" then
+    "[Model Change] " + .modelId
+  elif .type == "thinking_level_change" then
+    "[Thinking Level] " + .thinkingLevel
+  else empty end
+' {session}.jsonl > {projectDir}/chats/.tmp/{name}-raw.txt
+```
+
+**Step 2c: If still too large (>2000 lines), truncate to recent messages:**
+```bash
+tail -200 {projectDir}/chats/.tmp/{name}-raw.txt > {projectDir}/chats/.tmp/{name}-truncated.txt
+```
+
+**Step 2d: Generate markdown via prompt**
+
+Send prompt:
+```
+Convert this OpenClaw session into chats-share format.
+- Do NOT modify original content, only perform format conversion
+- Preserve all thinking, tool calls, tool results
+- Use :::{type=thinking_level_change} for thinking blocks (NO collapsed attribute)
+- Use :::{type=custom} for tool calls and results (NO collapsed attribute)
+- Use :::{type=error,collapsed=false} for errors
+- Use :::{type=session} for session events
+
+Reference: docs/chats-share-data-format.md
+```
+
+**Important:** Agent Skills Mode should NOT add `collapsed` attribute to thinking/tool blocks - let the web page decide default behavior.
+
+**Step 2e: Save output to temp file**
+
+Save the converted content to: `{projectDir}/chats/.tmp/{timestamp}.md`
+
 6. Digest summary from parsed file, suggest topic name based on content (e.g. "How to use OpenClaw with Python")
 7. Confirm participants: Read the auto-generated `participants` frontmatter from the temp file.
    Show the current entries and ask the user if they want to customize the display names
    (e.g. rename `user` to their real name, or `assistant` to the agent's display name).
-   Update the frontmatter in-place if the user provides new names — keep all other fields (`role`, `model`) unchanged.
+   Update the frontmatter in-place if the user provides new names -> keep all other fields (`role`, `model`) unchanged.
 8. Confirm with user: show preview, ask to confirm or modify topic name
 9. Rename: `mv {temp} {projectDir}/chats/{YYYYMMDD}-{topic}.md`
 10. Redact sensitive info (e.g.: API keys, tokens, paths, emails, IPs) (see "Redact" section below)
@@ -68,7 +143,7 @@ echo -e "\n## chats-share\n\n- Project: {projectDir}\n" >> ~/.openclaw/workspace
 
 When sharing publicly, review and redact:
 - API keys, tokens, passwords
-- File paths with usernames (`/Users/xxx` → `~`)
+- File paths with usernames (`/Users/xxx` -> `~`)
 - Email addresses, phone numbers
 - Internal URLs and private IPs
 
