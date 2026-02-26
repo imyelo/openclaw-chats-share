@@ -63,6 +63,13 @@ export const DEFAULT_CONSTRAINT: FormatConstraint = {
     { key: 'totalTokens', type: 'number', required: false, description: 'Total tokens used' },
     { key: 'tags', type: 'array', required: false, description: 'Tags/categories' },
     { key: 'visibility', type: 'string', required: false, description: 'Visibility: public or private' },
+    {
+      key: 'defaultShowProcess',
+      type: 'boolean',
+      required: false,
+      description: 'Show proecss by default',
+      defaultValue: false,
+    },
     { key: 'description', type: 'string', required: false, description: 'Brief description' },
     {
       key: 'participants',
