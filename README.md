@@ -12,14 +12,26 @@ A monorepo for sharing OpenClaw conversation history as static websites. Trigger
     ▼
 OpenClaw Skill
     │  1. Extract full message history from session file
-    │  2. Generate title suggestion (user confirms or edits)
-    │  3. Sanitize sensitive data
-    │  4. Write Markdown to your data repo
-    │  5. Git commit → GitHub Actions build
+    │  2. Choose implementation mode (CLI or Agent Skills)
+    │  3. Generate title suggestion (user confirms or edits)
+    │  4. Sanitize sensitive data (optional)
+    │  5. Write Markdown to your data repo
+    │  6. Push to new branch → create PR
     ▼
 GitHub Pages
     └── https://your-domain/share/{slug}
 ```
+
+### Implementation Modes
+
+The Skill supports two processing modes:
+
+1. **CLI Mode** (default) — Fast, handles large files reliably
+2. **Agent Skills Mode** — Flexible for custom transformations during parse
+
+### Branch-Based Workflow
+
+Chats are pushed to a new branch (`chat/{slug}`) instead of main, with guidance to create a PR for review before merging.
 
 ## Repository Architecture
 
@@ -78,6 +90,7 @@ Chat files are stored as Markdown with YAML frontmatter under `chats/` in your w
 | `tags` | No | Tag array for categorization | `[coding, debug]` |
 | `visibility` | No | Index visibility | `private` (default) |
 | `description` | No | Brief description for index | `Debugging a tricky async issue` |
+| `defaultShowProcess` | No | Show process (e.g.: thinking, tool calls) by default (`false` hides by default) | `false` |
 
 **Visibility:**
 - `public` — appears on the homepage index
@@ -94,6 +107,7 @@ model: MiniMax-M2.5
 totalMessages: 42
 totalTokens: 12345
 visibility: public
+defaultShowProcess: false
 ---
 
 # Debugging Async Issue

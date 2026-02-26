@@ -45,6 +45,7 @@ model: MiniMax-M2.5
 totalMessages: 42
 totalTokens: 12345
 visibility: public
+defaultShowProcess: false
 participants:
   Alice:
     role: human
