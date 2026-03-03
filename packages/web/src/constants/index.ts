@@ -31,28 +31,11 @@ export const SPEC_COLOR_MAP: Record<string, { borderColor: string; color: string
   default: { borderColor: '#6b7280', color: '#9ca3af' },
 }
 
-// Collapsible message type styles - using inline style values
-export const COLLAPSIBLE_TYPE_STYLES: Record<string, { accent: string; hoverBg: string; iconBg: string }> = {
-  error: {
-    accent: '#f87171',
-    hoverBg: 'rgba(239, 68, 68, 0.1)',
-    iconBg: 'rgba(239, 68, 68, 0.15)',
-  },
-  session: {
-    accent: '#34d399',
-    hoverBg: 'rgba(16, 185, 129, 0.1)',
-    iconBg: 'rgba(16, 185, 129, 0.15)',
-  },
-  custom: {
-    accent: '#9ca3af',
-    hoverBg: 'rgba(107, 114, 128, 0.1)',
-    iconBg: 'rgba(107, 114, 128, 0.15)',
-  },
-  thinking_level_change: {
-    accent: '#9ca3af',
-    hoverBg: 'rgba(107, 114, 128, 0.1)',
-    iconBg: 'rgba(107, 114, 128, 0.15)',
-  },
+// Collapsible message style - single neutral style for all process message types
+export const COLLAPSIBLE_STYLE = {
+  accent: '#9ca3af',
+  hoverBg: 'rgba(107, 114, 128, 0.1)',
+  iconBg: 'rgba(107, 114, 128, 0.15)',
 }
 
 // ============================================================================

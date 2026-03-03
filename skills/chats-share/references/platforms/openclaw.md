@@ -113,4 +113,4 @@ This entry is what Config Lookup reads (see above).
 
 ## Output Format
 
-For how to render each event and message type as chats-share Markdown, see [output-template.md](../output-template.md).
+For how to render each event and message type as chats-share YAML, see [output-template.md](../output-template.md).

@@ -1,0 +1,254 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`YAMLGenerator should generate YAML content 1`] = `
+"title: session-export
+date: 2026-02-17
+sessionId: test-session-123
+model: unknown
+totalMessages: 4
+totalTokens: 0
+visibility: private
+defaultShowProcess: false
+participants:
+  user:
+    role: human
+  assistant:
+    role: agent
+timeline:
+  - type: message
+    role: user
+    speaker: user
+    timestamp: 2026-02-17T23:02:38.166Z
+    content: Hello, can you help me?
+  - type: message
+    role: assistant
+    speaker: assistant
+    timestamp: 2026-02-17T23:02:52.044Z
+    content: Of course! How can I assist you today?
+  - type: message
+    role: assistant
+    speaker: assistant
+    timestamp: 2026-02-17T23:02:59.000Z
+    content: Let me write that to a file.
+    toolCalls:
+      - id: call1
+        name: write
+        arguments:
+          file_path: /test.md
+          content: test content
+        result:
+          content: Successfully wrote 100 bytes to /test.md
+          isError: false
+"
+`;
+
+exports[`YAMLGenerator should include total tokens 1`] = `
+"title: session-export
+date: 2026-02-17
+sessionId: test-session-123
+model: unknown
+totalMessages: 1
+totalTokens: 30
+visibility: private
+defaultShowProcess: false
+participants:
+  user:
+    role: human
+timeline:
+  - type: message
+    role: user
+    speaker: user
+    timestamp: 2026-02-17T23:02:38.166Z
+    content: Hello
+"
+`;
+
+exports[`YAMLGenerator should render thinking blocks 1`] = `
+"title: session-export
+date: 2026-02-17
+sessionId: test-session-123
+model: unknown
+totalMessages: 1
+totalTokens: 0
+visibility: private
+defaultShowProcess: false
+participants:
+  assistant:
+    role: agent
+timeline:
+  - type: message
+    role: assistant
+    speaker: assistant
+    timestamp: 2026-02-17T23:02:38.166Z
+    thinking: Let me think about this...
+    content: Final answer
+"
+`;
+
+exports[`YAMLGenerator should render error tool result 1`] = `
+"title: session-export
+date: 2026-02-17
+sessionId: test-session-123
+model: unknown
+totalMessages: 1
+totalTokens: 0
+visibility: private
+defaultShowProcess: false
+participants:
+  assistant:
+    role: agent
+timeline:
+  - type: message
+    role: tool
+    speaker: tool
+    timestamp: 2026-02-17T23:02:38.166Z
+    content: File not found
+    toolCalls:
+      - id: call1
+        name: read
+        arguments: {}
+        result:
+          content: File not found
+          isError: true
+"
+`;
+
+exports[`YAMLGenerator should handle empty messages 1`] = `
+"title: session-export
+date: 2026-02-17
+sessionId: test-session-123
+model: unknown
+totalMessages: 0
+totalTokens: 0
+visibility: private
+defaultShowProcess: false
+timeline: []
+"
+`;
+
+exports[`YAMLGenerator should interleave non-message events chronologically 1`] = `
+"title: session-export
+date: 2026-02-17
+sessionId: test-session-123
+model: unknown
+totalMessages: 1
+totalTokens: 0
+visibility: private
+defaultShowProcess: false
+participants:
+  user:
+    role: human
+timeline:
+  - type: thinking_level_change
+    timestamp: 2026-02-17T23:02:39.000Z
+    level: off
+  - type: message
+    role: user
+    speaker: user
+    timestamp: 2026-02-17T23:02:40.000Z
+    content: Hello
+"
+`;
+
+exports[`generateYAML convenience function should write YAML to disk 1`] = `
+"title: session-export
+date: 2026-02-17
+sessionId: test-session-123
+model: unknown
+totalMessages: 4
+totalTokens: 0
+visibility: private
+defaultShowProcess: false
+participants:
+  user:
+    role: human
+  assistant:
+    role: agent
+timeline:
+  - type: message
+    role: user
+    speaker: user
+    timestamp: 2026-02-17T23:02:38.166Z
+    content: Hello, can you help me?
+  - type: message
+    role: assistant
+    speaker: assistant
+    timestamp: 2026-02-17T23:02:52.044Z
+    content: Of course! How can I assist you today?
+  - type: message
+    role: assistant
+    speaker: assistant
+    timestamp: 2026-02-17T23:02:59.000Z
+    content: Let me write that to a file.
+    toolCalls:
+      - id: call1
+        name: write
+        arguments:
+          file_path: /test.md
+          content: test content
+        result:
+          content: Successfully wrote 100 bytes to /test.md
+          isError: false
+"
+`;
+
+exports[`sample-session-2.jsonl full pipeline should generate YAML from sample-session-2.jsonl 1`] = `
+"title: session-export
+date: 2026-02-17
+sessionId: session-001
+model: MiniMax-M2.5
+totalMessages: 4
+totalTokens: 650
+visibility: private
+defaultShowProcess: false
+participants:
+  user:
+    role: human
+  assistant:
+    role: agent
+    model: MiniMax-M2.5
+timeline:
+  - type: session
+    timestamp: 2026-02-17T12:00:00.000Z
+    cwd: /home/user/workspace
+  - type: model_change
+    timestamp: 2026-02-17T12:00:00.001Z
+    model: MiniMax-M2.5
+    provider: minimax
+  - type: thinking_level_change
+    timestamp: 2026-02-17T12:00:00.002Z
+    level: off
+  - type: custom
+    timestamp: 2026-02-17T12:00:00.003Z
+    customType: model-snapshot
+    model: MiniMax-M2.5
+    provider: minimax
+  - type: message
+    role: user
+    speaker: user
+    timestamp: 2026-02-17T12:00:01.000Z
+    content: Hello, this is a test message
+  - type: message
+    role: assistant
+    speaker: assistant
+    timestamp: 2026-02-17T12:00:02.000Z
+    model: MiniMax-M2.5
+    thinking: Assistant thinking process here
+    content: Assistant response text
+    toolCalls:
+      - id: call_001
+        name: write
+        arguments:
+          file_path: /test.txt
+          content: test
+        result:
+          content: Successfully wrote 100 bytes to /test.txt
+          isError: false
+  - type: message
+    role: assistant
+    speaker: assistant
+    timestamp: 2026-02-17T12:00:04.000Z
+    model: MiniMax-M2.5
+    content: Final assistant message
+"
+`;

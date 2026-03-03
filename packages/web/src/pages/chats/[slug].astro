@@ -3,7 +3,13 @@ import ChatLayout from '../../layouts/ChatLayout.astro';
 import ChatMessage from '../../components/ChatMessage.astro';
 import { CollapsibleMessage } from '../../components/CollapsibleMessage';
 import { AVATAR_COLORS } from '../../constants/index.js';
-import { getAllChatsWithContent, type ChatWithContent } from '../../lib/chats';
+import {
+  getAllChatsWithContent,
+  type ChatWithContent,
+  type ChatMessage as ChatMsg,
+  type ChatEvent,
+  type ChatToolCall,
+} from '../../lib/chats';
 
 export async function getStaticPaths() {
   return (await getAllChatsWithContent()).map(chat => ({
@@ -17,39 +23,214 @@ interface Props {
 }
 
 const { chat } = Astro.props;
-const { title, channel, model, date, totalMessages, messageBlocks, participants, defaultShowProcess = false } = chat;
+const { title, channel, model, date, totalMessages, timeline, participants, defaultShowProcess = false } = chat;
 const displayTitle = title || '';
 
-// Determine if process messages should be shown by default based on frontmatter
-// defaultShowProcess: true -> show by default (collapsed: false)
-// defaultShowProcess: false/undefined -> hide by default (collapsed: true)
 const showProcessByDefault = defaultShowProcess;
 
 // Resolve whether a participant name is an agent.
-// Checks the frontmatter participants map first; falls back to keyword heuristic.
-function isSpeakerAgent(author: string): boolean {
-  if (participants && author in participants) {
-    return participants[author].role === 'agent';
+function isSpeakerAgent(speaker: string): boolean {
+  if (participants && speaker in participants) {
+    return participants[speaker].role === 'agent';
   }
-  const lower = author.toLowerCase();
+  const lower = speaker.toLowerCase();
   return lower.includes('agent') || lower.includes('assistant');
 }
 
-// Flatten ParsedMessageBlock[] into a renderable list
-const messages = messageBlocks.flatMap(block => {
-  const isUser = !isSpeakerAgent(block.author);
-  return block.segments.map(seg => ({ ...seg, author: block.author, timestamp: block.timestamp, isUser }));
-});
+// Wrap content in a fenced code block with adaptive fence length.
+function fenceBlock(content: string): string {
+  let maxRun = 2;
+  for (const m of content.matchAll(/`+/g)) {
+    if (m[0].length > maxRun) maxRun = m[0].length;
+  }
+  const fence = '`'.repeat(maxRun + 1);
+  return `${fence}\n${content}\n${fence}`;
+}
 
-const hasProcessMessages = messages.some((msg: any) => msg.kind === 'directive');
-const regularMessageCount = messages.filter((msg: any) => msg.kind !== 'directive').length;
+// Format a tool call as a markdown string for the collapsible body.
+function buildToolCallContent(tc: ChatToolCall): string {
+  const argLines: string[] = [];
+
+  switch (tc.name) {
+    case 'read': {
+      const fp = tc.arguments.file_path as string | undefined;
+      if (fp) argLines.push(`**File**: \`${fp}\``);
+      break;
+    }
+    case 'write': {
+      const fp = tc.arguments.file_path as string | undefined;
+      const content = tc.arguments.content as string | undefined;
+      if (fp) argLines.push(`**File**: ${fp}`);
+      if (content) argLines.push(`**Content** (${content.length} chars):\n${fenceBlock(content)}`);
+      break;
+    }
+    case 'edit': {
+      const fp = tc.arguments.file_path as string | undefined;
+      const oldText = tc.arguments.oldText as string | undefined;
+      const newText = tc.arguments.newText as string | undefined;
+      if (fp) argLines.push(`**File**: ${fp}`);
+      if (oldText) argLines.push(`**Old**:\n${fenceBlock(oldText)}`);
+      if (newText) argLines.push(`**New**:\n${fenceBlock(newText)}`);
+      break;
+    }
+    case 'exec': {
+      const command = tc.arguments.command as string | undefined;
+      if (command) argLines.push(`**Command**:\n${fenceBlock(command)}`);
+      break;
+    }
+    case 'process': {
+      const name = tc.arguments.name as string | undefined;
+      const command = tc.arguments.command as string | undefined;
+      if (name) argLines.push(`**Process**: ${name}`);
+      if (command) argLines.push(`**Command**:\n${fenceBlock(command)}`);
+      break;
+    }
+    case 'curl': {
+      const method = tc.arguments.method as string | undefined;
+      const url = tc.arguments.url as string | undefined;
+      const body = tc.arguments.body as string | undefined;
+      if (method) argLines.push(`**Method**: ${method}`);
+      if (url) argLines.push(`**URL**: ${url}`);
+      if (body) argLines.push(`**Body**:\n${fenceBlock(body)}`);
+      break;
+    }
+    default: {
+      for (const [key, value] of Object.entries(tc.arguments)) {
+        const strValue = typeof value === 'string' ? value : JSON.stringify(value);
+        argLines.push(`**${key}**:\n${fenceBlock(strValue)}`);
+      }
+    }
+  }
+
+  const parts: string[] = [];
+  if (argLines.length > 0) {
+    parts.push(argLines.join('\n\n'));
+    parts.push('***');
+  }
+  if (tc.result) {
+    parts.push(tc.result.isError ? tc.result.content : fenceBlock(tc.result.content));
+  }
+  return parts.join('\n\n');
+}
+
+// Map a non-message event to directive display properties.
+function expandEventToDirective(event: ChatEvent): {
+  type: string; icon: string; label: string; content: string; collapsed: boolean;
+} {
+  const e = event as Record<string, unknown>;
+  const content = String(e.content || '');
+  const title = e.title ? String(e.title) : null;
+  const collapsed = Boolean(e.collapsed ?? false);
+  switch (event.type) {
+    case 'session':
+      return { type: 'session', icon: '✅', label: title ?? `Session Initialized ${e.cwd || ''}`, content, collapsed };
+    case 'model_change':
+      return { type: 'custom', icon: '🔧', label: title ?? `Model Change: ${e.model || ''} (${e.provider || ''})`, content, collapsed };
+    case 'thinking_level_change':
+      return { type: 'thinking_level_change', icon: '🧠', label: title ?? `Thinking level: ${e.level || ''}`, content, collapsed };
+    case 'compaction':
+      return { type: 'custom', icon: '🗜️', label: title ?? `Context Compaction: ${e.tokensBefore ?? ''} tokens`, content, collapsed };
+    case 'custom': {
+      const customType = String(e.customType || 'custom');
+      if (customType === 'model-snapshot') {
+        return { type: 'custom', icon: '⚙️', label: title ?? `Model Snapshot: ${e.model || ''} (${e.provider || ''})`, content, collapsed };
+      }
+      return { type: 'custom', icon: '⚙️', label: title ?? customType, content, collapsed };
+    }
+    default:
+      return { type: 'custom', icon: '⚙️', label: title ?? event.type, content, collapsed };
+  }
+}
+
+type RenderItem = {
+  kind: 'text' | 'directive';
+  speaker: string;
+  timestamp: string;
+  isUser: boolean;
+  content?: string;
+  type?: string;
+  icon?: string;
+  label?: string;
+  collapsed?: boolean;
+};
+
+// Build flat render list from the timeline
+const messages: RenderItem[] = [];
+for (const item of timeline) {
+  if (item.type === 'message') {
+    const msg = item as ChatMsg;
+    const speaker = msg.speaker || msg.role;
+    const isUser = !isSpeakerAgent(speaker);
+
+    // Thinking block
+    if (msg.thinking) {
+      messages.push({
+        kind: 'directive',
+        speaker,
+        timestamp: msg.timestamp,
+        isUser,
+        type: 'thinking_level_change',
+        icon: '🧠',
+        label: 'Thinking',
+        content: msg.thinking,
+        collapsed: true,
+      });
+    }
+
+    // Tool calls (process — shown before the final text response)
+    for (const tc of msg.toolCalls || []) {
+      const isError = tc.result?.isError ?? false;
+      messages.push({
+        kind: 'directive',
+        speaker,
+        timestamp: msg.timestamp,
+        isUser,
+        type: isError ? 'error' : 'custom',
+        icon: isError ? '⚠️' : '🔧',
+        label: tc.title ?? `Tool Call - ${tc.name}${tc.arguments.file_path ? ` · ${tc.arguments.file_path}` : ''}`,
+        content: buildToolCallContent(tc),
+        collapsed: tc.collapsed ?? false,
+      });
+    }
+
+    // Text content
+    if (msg.content) {
+      messages.push({
+        kind: 'text',
+        speaker,
+        timestamp: msg.timestamp,
+        isUser,
+        content: msg.content,
+      });
+    }
+  } else {
+    const event = item as ChatEvent;
+    const e = event as Record<string, unknown>;
+    const eventSpeaker = String(e.speaker || '');
+    const directive = expandEventToDirective(event);
+    messages.push({
+      kind: 'directive',
+      speaker: eventSpeaker,
+      timestamp: event.timestamp,
+      isUser: eventSpeaker ? !isSpeakerAgent(eventSpeaker) : false,
+      type: directive.type,
+      icon: directive.icon,
+      label: directive.label,
+      content: directive.content,
+      collapsed: directive.collapsed,
+    });
+  }
+}
+
+const hasProcessMessages = messages.some(msg => msg.kind === 'directive');
+const regularMessageCount = messages.filter(msg => msg.kind !== 'directive').length;
 
 // Create avatar color mapping for unique human authors
 const authorColorMap = new Map<string, number>();
 let colorIndex = 0;
-messages.forEach((msg: any) => {
-  if (!isSpeakerAgent(msg.author) && !authorColorMap.has(msg.author)) {
-    authorColorMap.set(msg.author, colorIndex % AVATAR_COLORS.length);
+messages.forEach(msg => {
+  if (msg.speaker && !isSpeakerAgent(msg.speaker) && !authorColorMap.has(msg.speaker)) {
+    authorColorMap.set(msg.speaker, colorIndex % AVATAR_COLORS.length);
     colorIndex++;
   }
 });
@@ -71,25 +252,25 @@ messages.forEach((msg: any) => {
   {hasProcessMessages && (
     <button slot="controls" id="toggle-collapsible-btn" class="toggle-btn" aria-label="Show process information" aria-pressed={String(!showProcessByDefault)}>
       <span class="toggle-pip" aria-hidden="true"></span>
-      <span class="toggle-text">show process</span>
+      <span class="toggle-text">{showProcessByDefault ? 'hide process' : 'show process'}</span>
     </button>
   )}
 
-  {messages.map((msg: any, index: number) => {
-    const isFirstInGroup = index === 0 || messages[index - 1].author !== msg.author;
-    const isLastInGroup = index === messages.length - 1 || messages[index + 1].author !== msg.author;
+  {messages.map((msg, index) => {
+    const isFirstInGroup = index === 0 || messages[index - 1].speaker !== msg.speaker;
+    const isLastInGroup = index === messages.length - 1 || messages[index + 1].speaker !== msg.speaker;
 
     if (msg.kind === 'directive') {
-      const avatarColorIndex = isSpeakerAgent(msg.author) ? undefined : authorColorMap.get(msg.author);
+      const avatarColorIndex = msg.speaker && !isSpeakerAgent(msg.speaker) ? authorColorMap.get(msg.speaker) : undefined;
       return (
         <CollapsibleMessage
           client:load
-          type={msg.type}
-          icon={msg.icon}
-          label={msg.label}
-          collapsed={msg.collapsed ?? !showProcessByDefault}
-          content={msg.content}
-          author={msg.author}
+          type={msg.type!}
+          icon={msg.icon!}
+          label={msg.label!}
+          collapsed={msg.collapsed ?? false}
+          content={msg.content ?? ''}
+          author={msg.speaker}
           timestamp={msg.timestamp}
           isFirstInGroup={isFirstInGroup}
           isLastInGroup={isLastInGroup}
@@ -98,12 +279,12 @@ messages.forEach((msg: any) => {
       );
     }
 
-    const avatarColorIndex = isSpeakerAgent(msg.author) ? undefined : authorColorMap.get(msg.author);
+    const avatarColorIndex = msg.speaker && !isSpeakerAgent(msg.speaker) ? authorColorMap.get(msg.speaker) : undefined;
     return (
       <ChatMessage
-        author={msg.author}
+        author={msg.speaker}
         timestamp={msg.timestamp}
-        content={msg.content}
+        content={msg.content ?? ''}
         isUser={msg.isUser}
         isFirstInGroup={isFirstInGroup}
         isLastInGroup={isLastInGroup}
@@ -293,8 +474,6 @@ messages.forEach((msg: any) => {
     const showProcessByDefault = document.body.dataset.showProcessByDefault === 'true';
 
     // Default: process messages are hidden unless showProcessByDefault is true
-    // Add the class if not already present and not showing by default
-    // (it may already be set if the user toggled during this tab session).
     const shouldHide = !showProcessByDefault;
     if (shouldHide && !document.body.classList.contains('hide-collapsible-messages')) {
       document.body.classList.add('hide-collapsible-messages');

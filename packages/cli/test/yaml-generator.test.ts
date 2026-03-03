@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 import type { ParsedMessage, ParsedSession } from '../src/index'
-import { DEFAULT_CONSTRAINT, generateMD, MDGenerator } from '../src/index'
+import { DEFAULT_CONSTRAINT, generateYAML, YAMLGenerator } from '../src/index'
 
 const SAMPLE_SESSION: ParsedSession = {
   meta: {
@@ -54,26 +54,13 @@ const SAMPLE_SESSION: ParsedSession = {
   events: [],
 }
 
-describe('MDGenerator', () => {
-  it('should generate content without front matter', () => {
-    const generator = new MDGenerator(DEFAULT_CONSTRAINT, { includeFrontMatter: false })
+describe('YAMLGenerator', () => {
+  it('should generate YAML content', () => {
+    const generator = new YAMLGenerator(DEFAULT_CONSTRAINT)
     expect(generator.generate(SAMPLE_SESSION)).toMatchSnapshot()
   })
 
-  it('should generate content with front matter', () => {
-    const generator = new MDGenerator(DEFAULT_CONSTRAINT)
-    expect(generator.generateWithFrontMatter(SAMPLE_SESSION)).toMatchSnapshot()
-  })
-
-  it('should exclude timestamps when disabled', () => {
-    const generator = new MDGenerator(DEFAULT_CONSTRAINT, {
-      includeFrontMatter: false,
-      includeTimestamps: false,
-    })
-    expect(generator.generate(SAMPLE_SESSION)).toMatchSnapshot()
-  })
-
-  it('should include total tokens in front matter', () => {
+  it('should include total tokens', () => {
     const sessionWithUsage: ParsedSession = {
       ...SAMPLE_SESSION,
       messages: [
@@ -94,12 +81,10 @@ describe('MDGenerator', () => {
       ] as ParsedMessage[],
     }
 
-    const generator = new MDGenerator(DEFAULT_CONSTRAINT)
-    expect(generator.generateWithFrontMatter(sessionWithUsage)).toMatchSnapshot()
+    const generator = new YAMLGenerator(DEFAULT_CONSTRAINT)
+    expect(generator.generate(sessionWithUsage)).toMatchSnapshot()
   })
-})
 
-describe('MDGenerator - additional cases', () => {
   it('should render thinking blocks', () => {
     const sessionWithThinking: ParsedSession = {
       ...SAMPLE_SESSION,
@@ -114,7 +99,7 @@ describe('MDGenerator - additional cases', () => {
       ] as ParsedMessage[],
     }
 
-    const generator = new MDGenerator(DEFAULT_CONSTRAINT, { includeFrontMatter: false })
+    const generator = new YAMLGenerator(DEFAULT_CONSTRAINT)
     expect(generator.generate(sessionWithThinking)).toMatchSnapshot()
   })
 
@@ -137,7 +122,7 @@ describe('MDGenerator - additional cases', () => {
       ] as ParsedMessage[],
     }
 
-    const generator = new MDGenerator(DEFAULT_CONSTRAINT, { includeFrontMatter: false })
+    const generator = new YAMLGenerator(DEFAULT_CONSTRAINT)
     expect(generator.generate(sessionWithError)).toMatchSnapshot()
   })
 
@@ -147,7 +132,7 @@ describe('MDGenerator - additional cases', () => {
       messages: [],
     }
 
-    const generator = new MDGenerator(DEFAULT_CONSTRAINT, { includeFrontMatter: false })
+    const generator = new YAMLGenerator(DEFAULT_CONSTRAINT)
     expect(generator.generate(sessionEmpty)).toMatchSnapshot()
   })
 
@@ -172,20 +157,20 @@ describe('MDGenerator - additional cases', () => {
       ],
     }
 
-    const generator = new MDGenerator(DEFAULT_CONSTRAINT, { includeFrontMatter: false })
+    const generator = new YAMLGenerator(DEFAULT_CONSTRAINT)
     expect(generator.generate(sessionWithEvents)).toMatchSnapshot()
   })
 })
 
-describe('generateMD convenience function', () => {
-  it('should write markdown to disk', async () => {
+describe('generateYAML convenience function', () => {
+  it('should write YAML to disk', async () => {
     const { tmpdir } = await import('node:os')
     const { join } = await import('node:path')
     const { readFile, rm } = await import('node:fs/promises')
 
-    const outPath = join(tmpdir(), `md-generator-test-${Date.now()}.md`)
+    const outPath = join(tmpdir(), `yaml-generator-test-${Date.now()}.yaml`)
     try {
-      await generateMD(SAMPLE_SESSION, DEFAULT_CONSTRAINT, outPath)
+      await generateYAML(SAMPLE_SESSION, DEFAULT_CONSTRAINT, outPath)
       const content = await readFile(outPath, 'utf-8')
       expect(content).toMatchSnapshot()
     } finally {
@@ -195,16 +180,16 @@ describe('generateMD convenience function', () => {
 })
 
 describe('sample-session-2.jsonl full pipeline', () => {
-  it('should generate markdown from sample-session-2.jsonl', async () => {
+  it('should generate YAML from sample-session-2.jsonl', async () => {
     const { parseSession } = await import('../src/index')
     const { tmpdir } = await import('node:os')
     const { join } = await import('node:path')
     const { readFile, rm } = await import('node:fs/promises')
 
     const session = await parseSession(`${import.meta.dir}/fixtures/sample-session-2.jsonl`)
-    const outPath = join(tmpdir(), `md-generator-sample-2-${Date.now()}.md`)
+    const outPath = join(tmpdir(), `yaml-generator-sample-2-${Date.now()}.yaml`)
     try {
-      await generateMD(session, DEFAULT_CONSTRAINT, outPath)
+      await generateYAML(session, DEFAULT_CONSTRAINT, outPath)
       const content = await readFile(outPath, 'utf-8')
       expect(content).toMatchSnapshot()
     } finally {

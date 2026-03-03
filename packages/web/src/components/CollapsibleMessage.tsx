@@ -1,8 +1,8 @@
-import { memo, useMemo, useState } from 'react'
+import { memo, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
-import { AVATAR_COLORS, COLLAPSIBLE_TYPE_STYLES } from '../constants/index.js'
+import { AVATAR_COLORS, COLLAPSIBLE_STYLE } from '../constants/index.js'
 import styles from './CollapsibleMessage.module.css'
 
 function cn(...classes: (string | false | null | undefined)[]): string {
@@ -81,10 +81,6 @@ export const CollapsibleMessage = memo(function CollapsibleMessage({
 }) {
   const [isOpen, setIsOpen] = useState(!collapsed)
 
-  const style = useMemo(() => {
-    return COLLAPSIBLE_TYPE_STYLES[type] || COLLAPSIBLE_TYPE_STYLES.thinking_level_change
-  }, [type])
-
   return (
     <article
       data-author={author}
@@ -109,9 +105,9 @@ export const CollapsibleMessage = memo(function CollapsibleMessage({
             type="button"
             onClick={() => setIsOpen(prev => !prev)}
             className={styles.collapsibleToggle}
-            style={{ color: style.accent }}
+            style={{ color: COLLAPSIBLE_STYLE.accent }}
           >
-            {icon && <span className={styles.collapsibleTypeIcon}>{icon}</span>}
+            {icon && <span className={styles.collapsibleTypeIcon} style={{ backgroundColor: COLLAPSIBLE_STYLE.iconBg }}>{icon}</span>}
             <span className={styles.collapsibleTypeLabel}>{label}</span>
             <span className={styles.chevronWrapper}>
               <svg

@@ -1,21 +1,20 @@
-# Output Template: chats-share Markdown
+# Output Template: chats-share YAML
 
 Use this when converting any session to chats-share format.
 Full field reference: `docs/chats-share-data-format.md` in the project root.
 
 > **Content fidelity rule**: Copy all message text, tool arguments, and tool results verbatim from the session data. Do NOT paraphrase, summarize, translate, or reword any content. Format conversion only.
 
-## Frontmatter
+## Top-level Metadata Fields
 
 ```yaml
----
 title: {descriptive title}
 description: {one-sentence summary}
 date: {YYYY-MM-DD}
 sessionId: {session-id}
 model: {first model used}
-totalMessages: {count of all message-type JSONL events}
-totalTokens: {sum of usage.totalTokens across all messages, omit if unavailable}
+totalMessages: {count of user+assistant message events; exclude toolResult}
+totalTokens: {sum of usage.totalTokens across all messages; omit if unavailable}
 visibility: public
 defaultShowProcess: false
 participants:
@@ -24,190 +23,61 @@ participants:
   {DisplayName}:
     role: agent
     model: {model-name}
----
 ```
 
-## Header Block
+## Timeline Array
 
-Immediately after frontmatter:
+After the metadata fields, a `timeline:` key holds an ordered list of event and message objects.
 
-```markdown
-# {title}
+### Non-message Event Types
 
-> {YYYY-MM-DD}
+| `type` | Required fields | Notes |
+|--------|-----------------|-------|
+| `session` | `cwd` | Session start |
+| `model_change` | `model`, `provider` | Model switch |
+| `thinking_level_change` | `level` | e.g. `"off"`, `"medium"` |
+| `compaction` | `tokensBefore` | Context compaction |
+| `custom` | `customType`; for model-snapshot: `model`, `provider` | Custom events |
 
----
+All events also have `timestamp`.
+
+### Message Type
+
+```yaml
+- type: message
+  role: user | assistant
+  speaker: {DisplayName}
+  timestamp: {ISO 8601}
+  model: {model-name}         # assistant only, if available
+  thinking: |                 # assistant only, if model reasoning was captured
+    {reasoning text verbatim}
+  content: |
+    {message text verbatim}
+  toolCalls:                  # assistant only, if tools were called
+    - id: {tool-call-id}
+      name: {tool-name}
+      arguments:
+        {key}: {value}        # structured object, verbatim from session
+      result:
+        content: |
+          {result text verbatim}
+        isError: false
+  images:                     # if message contains images
+    - mimeType: image/png
+      data: {base64}
 ```
 
-## Message Block
+Use YAML block scalar (`|`) for any multiline string field (`thinking`, `content`, result `content`). Single-line strings may use plain or quoted YAML style.
 
-```markdown
-**{DisplayName}** · {ISO timestamp}
-
-{message content verbatim}
-```
-
-Each message (and each standalone event block) is separated from the next by a `---` rule.
-
-## Thinking Block (inside message)
-
-Placed before message text, inside the same message block:
-
-```markdown
-:::{type=thinking_level_change,collapsed=true}
-🧠 **Thinking**
-{model reasoning text verbatim}
-:::
-
-{message text}
-```
-
-## Collapsible Block Types
-
-```markdown
-:::{type=thinking_level_change,collapsed=true}
-🧠 **Thinking** level: {level}
-:::
-
-:::{type=custom,collapsed=true}
-{tool call / model change / custom event content}
-:::
-
-:::{type=error,collapsed=false}
-{error content}
-:::
-
-:::{type=session,collapsed=true}
-{session metadata}
-:::
-```
-
-## Code Fencing Rules
-
-Two rules apply whenever content is placed inside a code fence (`` ``` ``):
-
-### 1. Adaptive fence length
-
-Use enough backticks so the fence cannot appear *inside* the content. Count the longest consecutive run of backticks in the content, then use one more:
-
-| Longest run in content | Fence to use |
-|---|---|
-| 0–2 (no backticks, or `` ` `` / ` `` `) | ` ``` ` (3 backticks — minimum) |
-| 3 (` ``` `) | ```` ```` ```` (4 backticks) |
-| 4 (```` ```` ````) | ````` ````` ````` (5 backticks) |
-| N | N+1 backticks |
-
-Example — a tool result that itself contains a code block:
-````markdown
-````
-Here is some output:
-```json
-{"key": "value"}
-```
-````
-````
-
-### 2. Strip bare `---` lines from write/edit content
-
-The `---` sequence on a line by itself is the chats-share message separator. Remove any such lines from `write.content`, `edit.oldText`, and `edit.newText` before placing them in a code fence. Other content fields (tool results, exec output, etc.) are not stripped — they are just fenced, so `---` inside a fence is safe.
-
-## Tool Call Block (success)
-
-Full argument details and full result content — never summarize:
-
-```markdown
-:::{type=custom,collapsed=true}
-🔧 **Tool Call - {toolName}** · {file_path (if applicable)}
-
-***
-
-{formatted arguments — see per-tool format below}
-
-***
+## File Naming
 
 ```
-{result content verbatim}
+YYYYMMDD-{slug}.yaml
 ```
-:::
-```
-
-Use adaptive fence length (see above) for the result content block.
-
-### Per-tool argument format
-
-| Tool | Arguments |
-|------|-----------|
-| `read` | `**File**: \`{file_path}\`` |
-| `write` | `**File**: {file_path}`<br>`**Content** ({N} chars):` + code fence around content with `---` lines stripped |
-| `edit` | `**File**: {file_path}`<br>`**Old**:` + code fence around oldText with `---` lines stripped<br>`**New**:` + code fence around newText with `---` lines stripped |
-| `exec` | `**Command**:` + code fence around command |
-| `process` | `**Process**: {name}`<br>`**Command**:` + code fence around command |
-| `curl` | `**Method**: {method}`<br>`**URL**: {url}`<br>`**Body**:` + code fence around body |
-| Other | `**{argName}**:` + code fence around value (JSON-stringify non-strings) for each argument |
-
-## Tool Call Block (failure)
-
-```markdown
-:::{type=error,collapsed=false}
-🔧 **Tool Call - {toolName}** · {file_path (if applicable)}
-
-***
-
-{formatted arguments}
-
-***
-
-```
-{error content verbatim}
-```
-:::
-```
-
-Same adaptive fencing applies to the error content block.
-
-## Tool Result Block (legacy — standalone, no matching tool call)
-
-Used when a toolResult message has no corresponding toolCall:
-
-```markdown
-:::{type=custom,collapsed=true}
-✅ **{toolName}** · {result content}
-:::
-```
-
-Or for errors:
-
-```markdown
-:::{type=error,collapsed=false}
-❌ **{toolName}** · {error content}
-:::
-```
-
-## Image Block
-
-When a message contains an image, embed it as a data URI:
-
-```markdown
-![image/png](data:image/png;base64,{base64-data})
-```
-
-If the image data is not directly accessible, use a descriptive placeholder: `[image]`
-
-## Non-message Event Blocks
-
-| Event | Format |
-|-------|--------|
-| `model_change` | `:::{type=custom,collapsed=true}`<br>`🔧 **Model Change**: {modelId} ({provider})`<br>`:::` |
-| `thinking_level_change` | `:::{type=thinking_level_change,collapsed=true}`<br>`🧠 **Thinking** level: {level}`<br>`:::` |
-| `session` | `:::{type=session,collapsed=true}`<br>`Session started ({cwd})`<br>`:::` |
-| `compaction` | `:::{type=custom,collapsed=true}`<br>`🗜️ **Context Compaction**: {tokensBefore} tokens`<br>`:::` |
-| `custom` (generic) | `:::{type=custom,collapsed=true}`<br>`⚙️ {customType}`<br>`:::` |
-| `custom` (model-snapshot) | `:::{type=custom,collapsed=true}`<br>`⚙️ **model-snapshot**: {modelId} ({provider})`<br>`:::` |
 
 ## Full Example
 
-```markdown
----
+```yaml
 title: Debugging an async race condition
 description: Tracked down a race condition in a Node.js event emitter.
 date: 2026-03-03
@@ -223,62 +93,48 @@ participants:
   Claude:
     role: agent
     model: claude-sonnet-4-6
----
 
-# Debugging an async race condition
+timeline:
+  - type: session
+    timestamp: "2026-03-03T14:00:00.000Z"
+    cwd: ~/projects/myapp
 
-> 2026-03-03
+  - type: model_change
+    timestamp: "2026-03-03T14:00:01.000Z"
+    model: claude-sonnet-4-6
+    provider: anthropic
 
----
+  - type: thinking_level_change
+    timestamp: "2026-03-03T14:00:02.000Z"
+    level: "off"
 
-:::{type=session,collapsed=true}
-Session started (~/projects/myapp)
-:::
+  - type: message
+    role: user
+    speaker: Alice
+    timestamp: "2026-03-03T14:01:00.000Z"
+    content: |
+      I'm seeing a race condition in my event emitter setup. Here's the code...
 
----
-
-:::{type=custom,collapsed=true}
-🔧 **Model Change**: claude-sonnet-4-6 (anthropic)
-:::
-
----
-
-:::{type=thinking_level_change,collapsed=true}
-🧠 **Thinking** level: off
-:::
-
----
-
-**Alice** · 2026-03-03T14:01:00.000Z
-
-I'm seeing a race condition in my event emitter setup. Here's the code...
-
----
-
-**Claude** · 2026-03-03T14:02:00.000Z
-
-:::{type=thinking_level_change,collapsed=true}
-🧠 **Thinking**
-The issue is likely in how the drain event interacts with the write queue.
-Let me look at the emitter source to confirm.
-:::
-
-:::{type=custom,collapsed=true}
-🔧 **Tool Call - read** · src/emitter.ts
-
-***
-
-**File**: `src/emitter.ts`
-
-***
-
-```
-// EventEmitter source
-class Emitter {
-  // ...42 lines
-}
-```
-:::
-
-The problem is on line 17 — you're registering the listener inside the loop...
+  - type: message
+    role: assistant
+    speaker: Claude
+    timestamp: "2026-03-03T14:02:00.000Z"
+    model: claude-sonnet-4-6
+    thinking: |
+      The issue is likely in how the drain event interacts with the write queue.
+      Let me look at the emitter source to confirm.
+    content: |
+      The problem is on line 17 — you're registering the listener inside the loop...
+    toolCalls:
+      - id: tc_001
+        name: read
+        arguments:
+          file_path: src/emitter.ts
+        result:
+          content: |
+            // EventEmitter source
+            class Emitter {
+              // ...42 lines
+            }
+          isError: false
 ```

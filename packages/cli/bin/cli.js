@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-import { readFileSync, writeFileSync } from 'node:fs'
 import { parseArgs } from 'node:util'
 import { DEFAULT_CONSTRAINT } from '../dist/format-constraint/index.js'
-import { MDGenerator } from '../dist/md-generator/index.js'
+import { YAMLGenerator } from '../dist/yaml-generator/index.js'
 import { LogParser } from '../dist/session-log-parser/index.js'
+import { writeFile } from 'node:fs/promises'
 
 const { values, positionals } = parseArgs({
   options: {
@@ -18,21 +18,22 @@ const [command, inputPath] = positionals
 
 if (command === 'parse') {
   if (!inputPath) {
-    console.error('Usage: openclaw-chats-share parse <session.log> [-o output.md]')
+    console.error('Usage: openclaw-chats-share parse <session.log> [-o output.yaml]')
     process.exit(1)
   }
 
+  const { readFileSync } = await import('node:fs')
   const content = readFileSync(inputPath, 'utf-8')
   const parser = new LogParser()
   const session = parser.parseContent(content)
 
-  const generator = new MDGenerator(DEFAULT_CONSTRAINT, {
+  const generator = new YAMLGenerator(DEFAULT_CONSTRAINT, {
     defaultShowProcess: values['default-show-process'],
   })
-  const markdown = generator.generateWithFrontMatter(session)
+  const yaml = generator.generate(session)
 
-  const outputPath = values.output || inputPath.replace('.jsonl', '.md')
-  writeFileSync(outputPath, markdown)
+  const outputPath = values.output || inputPath.replace('.jsonl', '.yaml')
+  await writeFile(outputPath, yaml)
 
   console.log(`Generated: ${outputPath}`)
 } else {
