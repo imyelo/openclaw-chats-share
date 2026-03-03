@@ -32,9 +32,10 @@ Share AI agent conversations as public web pages.
 
 - Check file size — if large (> 1 MB or > 500 lines) → [Large File Handling](references/large-file.md)
 - Read (small) or preprocess (large) session content
-- Convert to chats-share Markdown format
+- Convert the session to chats-share Markdown format yourself as the Agent.
+  Do NOT run `openclaw-chats-share parse` — the CLI tool exists for end-users, not for skill execution.
   Template: [references/output-template.md](references/output-template.md)
-- **Critical:** Format conversion only — do NOT modify original content
+- **Critical — verbatim content:** Copy all message text, tool arguments, and tool results exactly as they appear in the session. Do NOT paraphrase, summarize, translate, or reword any content. Format conversion only.
 - Save to `{projectDir}/chats/.tmp/{timestamp}.md`
 
 ### 4. Populate Metadata
