@@ -35,7 +35,7 @@ sed -n '151,300p' {session}.jsonl
 
 Or use the Read tool with `offset` and `limit` parameters.
 
-For each batch, parse the JSON lines, extract content (see [openclaw.md](openclaw.md) — Message Content Block Extraction), and convert to chats-share markdown. Accumulate the output.
+For each batch, parse the JSON lines, extract content (see [platforms/openclaw.md](platforms/openclaw.md) — Message Content Block Extraction), and convert to chats-share markdown. Accumulate the output.
 
 **Cross-batch tool call pairing**: A `toolCall` message and its matching `toolResult` may appear in different batches. Track unpaired toolCalls (by `id`) across batches. When a toolResult appears, match it to the buffered toolCall even if it was in a prior batch.
 

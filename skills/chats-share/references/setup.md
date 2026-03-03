@@ -16,7 +16,7 @@ Follow the **Registration** section in your agent profile:
 
 | Agent | Profile |
 |-------|---------|
-| OpenClaw | [openclaw.md](openclaw.md#registration) |
+| OpenClaw | [platforms/openclaw.md](platforms/openclaw.md#registration) |
 
 For unlisted agents: note the absolute project path and provide it manually when running the skill.
 

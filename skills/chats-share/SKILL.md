@@ -12,7 +12,7 @@ Share AI agent conversations as public web pages.
 
 | Agent | Profile |
 |-------|---------|
-| OpenClaw | [references/openclaw.md](references/openclaw.md) |
+| OpenClaw | [references/platforms/openclaw.md](references/platforms/openclaw.md) |
 
 > For unlisted agents: ask the user for the session file path and project dir directly.
 

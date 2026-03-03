@@ -6,7 +6,7 @@ Read project dir from `~/.openclaw/workspace/TOOLS.md`:
 1. Find the `## chats-share` section
 2. Extract the `- Project: {path}` value
 
-If not found → [First-Time Setup](setup.md)
+If not found → [First-Time Setup](../setup.md)
 
 Also read `site` URL from `{projectDir}/chats-share.toml`.
 
@@ -27,14 +27,14 @@ Show candidates → confirm with user.
 
 JSONL — one JSON object per line. Event types:
 
-| Type | Content |
-|------|---------|
-| `session` | Session metadata (id, timestamp, cwd) |
-| `message` | role + content blocks (text / thinking / toolCall) |
-| `model_change` | Model switch event |
-| `thinking_level_change` | Thinking level change |
-| `custom` | Custom events (model-snapshot, plugin calls) |
-| `compaction` | Context compaction event (tokensBefore field) |
+| Type | Key fields |
+|------|------------|
+| `session` | `id`, `timestamp`, `cwd` |
+| `message` | `message.role`, `message.content[]`, `message.model`, `timestamp`; for toolResult: `message.toolCallId`, `message.toolName`, `message.isError` |
+| `model_change` | `modelId`, `provider` |
+| `thinking_level_change` | `thinkingLevel` |
+| `custom` | `customType`; for `model-snapshot`: `data.modelId`, `data.provider` |
+| `compaction` | `tokensBefore` |
 
 Full schemas: `docs/openclaw-session-log-format-search.md`
 
@@ -90,36 +90,16 @@ Strip metadata wrappers that Openclaw injects for Discord/Telegram messages. App
 6. **Discord mention tags**: `<@1234567890>` at end of message → remove
 7. Trim leading/trailing whitespace
 
-## Parsing: Event → chats-share Format
+## Metadata Extraction
 
-| Event type | chats-share output |
-|------------|-------------------|
-| `session` | `:::{type=session,collapsed=true}` → `Session started ({cwd})` |
-| `message` (user / assistant) | `---` separator + `**DisplayName** · timestamp` header + content |
-| Thinking block inside message | `:::{type=thinking_level_change,collapsed=true}` **before** message text — **copy full reasoning verbatim, never skip or summarize** |
-| Image block inside message | `![{mimeType}](data:{mimeType};base64,{data})` — embed inline; use `[image]` if data unavailable |
-| Tool call (success) | `:::{type=custom,collapsed=true}` — `🔧 **Tool Call - {name}** · {path}` header + `***` + full args + `***` + code-fenced full result |
-| Tool call (failure) | `:::{type=error,collapsed=false}` — same structure as success but with code-fenced error content |
-| `model_change` | `:::{type=custom,collapsed=true}` → `🔧 **Model Change**: {modelId} ({provider})` |
-| `thinking_level_change` | `:::{type=thinking_level_change,collapsed=true}` → `🧠 **Thinking** level: {level}` |
-| `custom` (generic) | `:::{type=custom,collapsed=true}` → `⚙️ {customType}` |
-| `custom` (model-snapshot) | `:::{type=custom,collapsed=true}` → `⚙️ **model-snapshot**: {modelId} ({provider})` |
-| `compaction` | `:::{type=custom,collapsed=true}` → `🗜️ **Context Compaction**: {tokensBefore} tokens` |
+`totalMessages`: count only `message`-type JSONL events with `role: user` or `role: assistant`. Exclude `toolResult` and all other event types.
 
-See [output-template.md](output-template.md) for exact block formats and per-tool argument formatting.
-
-**Important:** All non-message events must be rendered in chronological order even when they appear before the first user message or between messages. Do not skip any event.
-
-**Content fidelity:** Copy all message text, tool arguments, and tool results verbatim from the session data. Do NOT paraphrase, summarize, translate, or reword any content.
-
-`totalMessages`: count only `message`-type JSONL events (role: `user` or `assistant`). Exclude all other event types.
-
-Participant extraction:
+Participants:
 - `role: "user"` → human participant
-- `role: "assistant"` → agent participant (capture `model` field)
+- `role: "assistant"` → agent participant (capture `model` field from the message)
 - `role: "toolResult"` → part of the assistant turn, not a separate participant
 
-For large files → [large-file.md](large-file.md)
+For large files → [large-file.md](../large-file.md)
 
 ## Registration
 
@@ -130,3 +110,7 @@ echo -e "\n## chats-share\n\n- Project: {absolute-path-to-project}\n" >> ~/.open
 ```
 
 This entry is what Config Lookup reads (see above).
+
+## Output Format
+
+For how to render each event and message type as chats-share Markdown, see [output-template.md](../output-template.md).
