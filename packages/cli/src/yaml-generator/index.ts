@@ -36,6 +36,11 @@ export class YAMLGenerator {
     this.options = { ...DEFAULT_OPTIONS, ...options }
   }
 
+  private shouldExclude(type: string): boolean {
+    const excluded = new Set(this.options.excludeProcess || [])
+    return excluded.has('all') || excluded.has(type)
+  }
+
   /**
    * Generate YAML string from parsed session
    */
@@ -165,7 +170,7 @@ export class YAMLGenerator {
     const entries: Record<string, unknown>[] = []
 
     // Thinking block → separate entry
-    if (msg.thinking) {
+    if (msg.thinking && !this.shouldExclude('thinking')) {
       entries.push({ ...base, process: [{ type: 'thinking', content: msg.thinking }] })
     }
 

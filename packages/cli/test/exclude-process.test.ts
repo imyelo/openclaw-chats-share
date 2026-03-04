@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
-import { DEFAULT_CONSTRAINT, YAMLGenerator } from '../src/index'
 import type { ParsedSession } from '../src/index'
+import { DEFAULT_CONSTRAINT, YAMLGenerator } from '../src/index'
 
 const mockSession: ParsedSession = {
   meta: {
@@ -42,7 +42,12 @@ describe('YAMLGenerator excludeProcess', () => {
       excludeProcess: ['thinking'],
     })
     const yaml = generator.generate(mockSession)
-    expect(yaml).not.toContain('thinking')
+    // Thinking content should not appear
+    expect(yaml).not.toContain('I should respond politely')
+    // But still include the message content
+    expect(yaml).toContain('Hi there')
+    // Toolcalls should still be present
+    expect(yaml).toContain('tool_call')
   })
 
   it('should exclude toolcalls when specified', () => {
