@@ -25,12 +25,14 @@ timeline:
     speaker: Agent
     timestamp: 2026-02-19T17:11:00.000Z
     model: MiniMax-M2.5
-    thinking: |-
-      Analyzing the user's requirements: the user wants to export conversations from the platform and share them externally.
-      Need to confirm the following core features:
-      - What format for sharing? (webpage / long image / PDF)
-      - Does it need privacy sanitization?
-      - Does it need access control?
+    process:
+      - type: thinking
+        content: |-
+          Analyzing the user's requirements: the user wants to export conversations from the platform and share them externally.
+          Need to confirm the following core features:
+          - What format for sharing? (webpage / long image / PDF)
+          - Does it need privacy sanitization?
+          - Does it need access control?
     content: |-
       Great idea! What features do you have in mind? We could generate Markdown or directly produce a static webpage.
   - type: message
@@ -82,10 +84,9 @@ timeline:
     speaker: Agent
     timestamp: 2026-02-19T17:16:00.000Z
     model: MiniMax-M2.5
-    content: |+
-      Of course. Like the red warning box above — for system-level error records, we can highlight them with a red collapsible panel. Very intuitive.
-    toolCalls:
-      - id: tc_demo_001
+    process:
+      - type: tool_call
+        id: tc_demo_001
         name: read
         title: "Permission Denied"
         arguments:
@@ -94,6 +95,8 @@ timeline:
           content: |-
             Detected insufficient `READ_SESSION_FILE` permissions in the simulated environment. Please ensure the file has read permissions: `chmod 644 sessions.json`
           isError: true
+    content: |+
+      Of course. Like the red warning box above — for system-level error records, we can highlight them with a red collapsible panel. Very intuitive.
   - type: message
     role: user
     speaker: Human 2

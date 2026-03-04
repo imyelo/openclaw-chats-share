@@ -56,32 +56,61 @@ All events also include `timestamp`.
 
 ### Message Objects
 
+Each message entry may carry a `process` list (thinking blocks, tool calls) and/or a `content` field. The CLI emits each process block and the text content as **separate entries** with the same `speaker`, `timestamp`, `role`, and `model`. Hand-crafted YAML may consolidate multiple blocks into a single entry — the web handles both forms.
+
+**Entry with a thinking block:**
+
 ```yaml
 - type: message
-  role: user | assistant
+  role: assistant
   speaker: {DisplayName}
   timestamp: {ISO 8601}
-  model: {model-name}         # assistant only
-  thinking: |                 # assistant only, if model reasoning was captured
-    {reasoning text}
-  content: |
-    {message text}
-  toolCalls:                  # assistant only, if tools were called
-    - id: {tool-call-id}
+  model: {model-name}
+  process:
+    - type: thinking
+      content: |
+        {reasoning text}
+      collapsed: false          # optional; if true, the panel starts collapsed
+```
+
+**Entry with a tool call:**
+
+```yaml
+- type: message
+  role: assistant
+  speaker: {DisplayName}
+  timestamp: {ISO 8601}
+  model: {model-name}
+  process:
+    - type: tool_call
+      id: {tool-call-id}
       name: {tool-name}
-      title: {display label}  # optional; overrides the auto-generated "Tool Call - name · path" label
+      title: {display label}    # optional; overrides the auto-generated "Tool Call - name · path" label
+      collapsed: false          # optional
       arguments:
         {key}: {value}
       result:
         content: |
           {result text}
         isError: false
+```
+
+**Entry with text content:**
+
+```yaml
+- type: message
+  role: user | assistant
+  speaker: {DisplayName}
+  timestamp: {ISO 8601}
+  model: {model-name}           # assistant only
+  content: |
+    {message text}
   images:
     - mimeType: image/png
       data: {base64}
 ```
 
-Block scalars (`|`) are used for multiline string fields (`thinking`, `content`, result `content`). Single-line strings use plain or quoted YAML style.
+Block scalars (`|`) are used for multiline string fields (`content`, result `content`). Single-line strings use plain or quoted YAML style.
 
 ## Complete Example
 
@@ -118,17 +147,26 @@ timeline:
     content: |
       Message content...
 
+  # CLI emits one entry per block; hand-crafted YAML may combine them.
+
   - type: message
     role: assistant
     speaker: Claude
     timestamp: "2026-02-15T06:14:05.123Z"
     model: claude-sonnet-4-6
-    thinking: |
-      Let me reason through this...
-    content: |
-      Response content...
-    toolCalls:
-      - id: tc_001
+    process:
+      - type: thinking
+        content: |
+          Let me reason through this...
+
+  - type: message
+    role: assistant
+    speaker: Claude
+    timestamp: "2026-02-15T06:14:05.123Z"
+    model: claude-sonnet-4-6
+    process:
+      - type: tool_call
+        id: tc_001
         name: read
         arguments:
           file_path: src/emitter.ts
@@ -136,6 +174,14 @@ timeline:
           content: |
             // file contents
           isError: false
+
+  - type: message
+    role: assistant
+    speaker: Claude
+    timestamp: "2026-02-15T06:14:05.123Z"
+    model: claude-sonnet-4-6
+    content: |
+      Response content...
 
   - type: custom
     timestamp: "2026-02-15T06:14:10.000Z"
@@ -155,14 +201,21 @@ timeline:
     speaker: Claude
     timestamp: "2026-02-15T06:15:10.000Z"
     model: claude-sonnet-4-6
-    toolCalls:
-      - id: tc_002
+    process:
+      - type: tool_call
+        id: tc_002
         name: read
         arguments:
           file_path: /nonexistent/file.txt
         result:
           content: File not found
           isError: true
+
+  - type: message
+    role: assistant
+    speaker: Claude
+    timestamp: "2026-02-15T06:15:10.000Z"
+    model: claude-sonnet-4-6
     content: |
       Of course, errors are displayed in a red panel.
 ```
@@ -174,8 +227,8 @@ The web package reads `.yaml` files from the `chats/` directory (or `chats_dir` 
 | Item | Rendering |
 |------|-----------|
 | `message` with `content` | Chat bubble |
-| `message` with `thinking` | Collapsible gray panel (collapsed by default) |
-| `message` with `toolCalls` | Collapsible indigo panel per call (expanded if `isError`) |
+| `message` with `process[].type = thinking` | Collapsible gray panel (expanded by default; set `collapsed: true` to collapse) |
+| `message` with `process[].type = tool_call` | Collapsible indigo panel per call (red panel if `result.isError: true`) |
 | `session` event | Collapsible green panel |
 | `model_change` event | Collapsible indigo panel |
 | `thinking_level_change` event | Collapsible gray panel |

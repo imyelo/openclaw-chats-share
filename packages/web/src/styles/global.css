@@ -24,6 +24,14 @@ body {
   overflow-x: hidden;
 }
 
+/* Collapsible process messages: hidden by default; body.show-process reveals them. */
+article[data-collapsible="true"] {
+  display: none;
+}
+body.show-process article[data-collapsible="true"] {
+  display: flex;
+}
+
 /* CRT scanline texture overlay */
 body::before {
   content: '';

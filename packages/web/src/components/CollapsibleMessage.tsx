@@ -4,6 +4,7 @@ import remarkGfm from 'remark-gfm'
 
 import { AVATAR_COLORS, COLLAPSIBLE_STYLE } from '../constants/index.js'
 import styles from './CollapsibleMessage.module.css'
+import '../styles/prose.css'
 
 function cn(...classes: (string | false | null | undefined)[]): string {
   return classes.filter(Boolean).join(' ')
@@ -57,7 +58,7 @@ function MessageHeader({
 }
 
 export const CollapsibleMessage = memo(function CollapsibleMessage({
-  type,
+  type: _type,
   icon,
   label,
   collapsed = false,
@@ -84,10 +85,8 @@ export const CollapsibleMessage = memo(function CollapsibleMessage({
   return (
     <article
       data-author={author}
+      data-collapsible="true"
       className={cn(
-        // global-collapsible-message: CSS hook used by [slug].astro to batch-hide
-        // all directive messages via body.hide-collapsible-messages.
-        'global-collapsible-message',
         styles.collapsible,
         isLastInGroup ? styles.collapsibleLastInGroup : styles.collapsibleNotLastInGroup,
         !isFirstInGroup && styles.collapsibleNotFirstInGroup
@@ -107,7 +106,14 @@ export const CollapsibleMessage = memo(function CollapsibleMessage({
             className={styles.collapsibleToggle}
             style={{ color: COLLAPSIBLE_STYLE.accent }}
           >
-            {icon && <span className={styles.collapsibleTypeIcon} style={{ backgroundColor: COLLAPSIBLE_STYLE.iconBg }}>{icon}</span>}
+            {icon && (
+              <span
+                className={styles.collapsibleTypeIcon}
+                style={{ backgroundColor: COLLAPSIBLE_STYLE.iconBg }}
+              >
+                {icon}
+              </span>
+            )}
             <span className={styles.collapsibleTypeLabel}>{label}</span>
             <span className={styles.chevronWrapper}>
               <svg
@@ -136,7 +142,7 @@ export const CollapsibleMessage = memo(function CollapsibleMessage({
             {/* .collapsibleBody is the grid item — no padding so it collapses to true 0.
                 Padding lives in the inner wrapper to avoid the "blank space" artifact. */}
             <div className={styles.collapsibleBody}>
-              <div className={cn(styles.collapsibleBodyInner, styles.prose)}>
+              <div className={cn(styles.collapsibleBodyInner, 'prose')}>
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   urlTransform={(url: string) => url}

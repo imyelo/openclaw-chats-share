@@ -27,14 +27,17 @@ export interface ChatData extends ChatMetadata {
   slug: string
 }
 
-export interface ChatToolCall {
-  id: string
-  name: string
-  title?: string
-  collapsed?: boolean
-  arguments: Record<string, unknown>
-  result?: { content: string; isError: boolean }
-}
+export type ProcessBlock =
+  | { type: 'thinking'; content: string; collapsed?: boolean }
+  | {
+      type: 'tool_call'
+      id: string
+      name: string
+      title?: string
+      collapsed?: boolean
+      arguments: Record<string, unknown>
+      result?: { content: string; isError: boolean }
+    }
 
 export interface ChatImage {
   mimeType: string
@@ -47,9 +50,8 @@ export interface ChatMessage {
   speaker: string
   timestamp: string
   model?: string
-  thinking?: string
+  process?: ProcessBlock[]
   content?: string
-  toolCalls?: ChatToolCall[]
   images?: ChatImage[]
 }
 

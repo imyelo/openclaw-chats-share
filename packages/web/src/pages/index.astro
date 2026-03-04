@@ -3,6 +3,7 @@ import { getPublicChats, getChatsSortedByDate } from '../lib/chats.js'
 import { getProjectConfig } from '../lib/config.js'
 import Footer from '../components/Footer.astro';
 import MemoryBackground from '../components/MemoryBackground.astro';
+import DecorativeCorners from '../components/DecorativeCorners.astro';
 import '../styles/global.css';
 
 const chats = getChatsSortedByDate(await getPublicChats())
@@ -129,28 +130,11 @@ const siteDescription = config.template?.options?.description || 'OpenClaw Chats
         border: 1px dashed var(--border);
       }
 
-      /* Decorative corner */
-      .corner-mark {
-        position: fixed;
-        width: 12px;
-        height: 12px;
-        border: 1px solid var(--accent-dim);
-        opacity: 0.4;
-      }
-      .corner-mark.top-left { top: 1rem; left: 1rem; border-right: none; border-bottom: none; }
-      .corner-mark.top-right { top: 1rem; right: 1rem; border-left: none; border-bottom: none; }
-      .corner-mark.bottom-left { bottom: 1rem; left: 1rem; border-right: none; border-top: none; }
-      .corner-mark.bottom-right { bottom: 1rem; right: 1rem; border-left: none; border-top: none; }
     </style>
   </head>
   <body>
     <MemoryBackground />
-
-    <!-- Decorative corners -->
-    <div class="corner-mark top-left"></div>
-    <div class="corner-mark top-right"></div>
-    <div class="corner-mark bottom-left"></div>
-    <div class="corner-mark bottom-right"></div>
+    <DecorativeCorners />
 
     <div class="container">
       <header class="header">

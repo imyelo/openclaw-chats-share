@@ -22,6 +22,9 @@
   --text-primary:   #e8e6e3;
   --text-secondary: #8a8785;
   --text-muted:     #5c5958;
+  --text-prose:     #a8a7a5; /* prose body (p, li) */
+  --text-td:        #c5c4c2; /* table data cells */
+  --text-bold:      #ffffff; /* strong/b emphasis */
 
   /* Accent */
   --accent:       #d4a853;

@@ -1,0 +1,85 @@
+/* ── Terminal LED toggle ─────────────────────────────────── */
+
+.toggleBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.3125rem 0.625rem 0.3125rem 0.5rem;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Amber wash on hover */
+.toggleBtn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(212, 168, 83, 0.06) 50%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.toggleBtn:hover::before { opacity: 1; }
+
+.toggleBtn:hover {
+  border-color: var(--accent-dim);
+  color: var(--text-secondary);
+  box-shadow:
+    0 0 10px rgba(212, 168, 83, 0.1),
+    inset 0 0 6px rgba(212, 168, 83, 0.03);
+}
+
+/* When process is hidden: mute the button */
+.toggleBtnHidden {
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+/* LED pip */
+.togglePip {
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--accent);
+  box-shadow:
+    0 0 3px var(--accent),
+    0 0 7px rgba(212, 168, 83, 0.5);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Pip dims when process is hidden */
+.togglePipHidden {
+  background: var(--text-muted);
+  box-shadow: none;
+}
+
+/* CRT-flicker on toggle */
+@keyframes crt-flicker {
+  0%   { opacity: 1;    }
+  20%  { opacity: 0.25; }
+  40%  { opacity: 0.85; }
+  60%  { opacity: 0.15; }
+  80%  { opacity: 0.75; }
+  100% { opacity: 1;    }
+}
+
+.flickering {
+  animation: crt-flicker 0.18s steps(4, jump-none);
+}

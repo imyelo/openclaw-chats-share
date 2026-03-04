@@ -133,7 +133,7 @@ export class YAMLGenerator {
         ) {
           continue
         }
-        result.push(this.buildMessageEntry(item.data, toolResultMap))
+        result.push(...this.buildMessageEntries(item.data, toolResultMap))
       } else {
         const entry = this.buildEventEntry(item.data)
         if (entry) {
@@ -144,31 +144,30 @@ export class YAMLGenerator {
     return result
   }
 
-  private buildMessageEntry(msg: ParsedMessage, toolResultMap: Map<string, ParsedMessage>): Record<string, unknown> {
+  private buildMessageEntries(msg: ParsedMessage, toolResultMap: Map<string, ParsedMessage>): Record<string, unknown>[] {
     const isToolResult = msg.role === 'toolResult'
     const role = isToolResult ? 'tool' : msg.role
 
-    const entry: Record<string, unknown> = {
+    const base: Record<string, unknown> = {
       type: 'message',
       role,
       speaker: role,
       timestamp: msg.timestamp,
     }
+    if (msg.model) { base.model = msg.model }
 
-    if (msg.model) {
-      entry.model = msg.model
-    }
+    const entries: Record<string, unknown>[] = []
+
+    // Thinking block → separate entry
     if (msg.thinking) {
-      entry.thinking = msg.thinking
-    }
-    if (msg.content) {
-      entry.content = msg.content
+      entries.push({ ...base, process: [{ type: 'thinking', content: msg.thinking }] })
     }
 
-    // Tool call — embed result from toolResultMap
+    // Tool call → separate entry
     if (msg.toolCall) {
       const toolResultMsg = msg.toolCall.id ? toolResultMap.get(msg.toolCall.id) : undefined
       const tc: Record<string, unknown> = {
+        type: 'tool_call',
         id: msg.toolCall.id,
         name: msg.toolCall.name,
         arguments: msg.toolCall.arguments,
@@ -179,31 +178,47 @@ export class YAMLGenerator {
           isError: toolResultMsg.toolResult.isError,
         }
       }
-      entry.toolCalls = [tc]
+      entries.push({ ...base, process: [tc] })
     }
 
-    // Standalone toolResult without a matching toolCall
+    // Standalone toolResult without a matching toolCall → separate entry
     if (isToolResult && msg.toolResult && !msg.toolCall) {
       const tr = msg.toolResult
-      entry.toolCalls = [
-        {
-          id: tr.toolCallId,
-          name: tr.toolName,
-          arguments: {},
-          result: {
-            content: tr.content,
-            isError: tr.isError,
+      entries.push({
+        ...base,
+        process: [
+          {
+            type: 'tool_call',
+            id: tr.toolCallId,
+            name: tr.toolName,
+            arguments: {},
+            result: { content: tr.content, isError: tr.isError },
           },
-        },
-      ]
+        ],
+      })
     }
 
-    // Images
+    // Text content → separate entry
+    if (msg.content) {
+      entries.push({ ...base, content: msg.content })
+    }
+
+    // Images — attach to last entry or standalone
     if (msg.images && msg.images.length > 0) {
-      entry.images = msg.images.map(img => ({ mimeType: img.mimeType, data: img.data }))
+      const imgData = msg.images.map(img => ({ mimeType: img.mimeType, data: img.data }))
+      if (entries.length > 0) {
+        entries[entries.length - 1].images = imgData
+      } else {
+        entries.push({ ...base, images: imgData })
+      }
     }
 
-    return entry
+    // Fallback: always emit at least one entry
+    if (entries.length === 0) {
+      entries.push({ ...base })
+    }
+
+    return entries
   }
 
   private buildEventEntry(event: SessionEvent): Record<string, unknown> | null {

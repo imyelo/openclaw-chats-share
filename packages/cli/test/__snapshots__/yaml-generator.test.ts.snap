@@ -29,9 +29,9 @@ timeline:
     role: assistant
     speaker: assistant
     timestamp: 2026-02-17T23:02:59.000Z
-    content: Let me write that to a file.
-    toolCalls:
-      - id: call1
+    process:
+      - type: tool_call
+        id: call1
         name: write
         arguments:
           file_path: /test.md
@@ -39,6 +39,11 @@ timeline:
         result:
           content: Successfully wrote 100 bytes to /test.md
           isError: false
+  - type: message
+    role: assistant
+    speaker: assistant
+    timestamp: 2026-02-17T23:02:59.000Z
+    content: Let me write that to a file.
 "
 `;
 
@@ -80,7 +85,13 @@ timeline:
     role: assistant
     speaker: assistant
     timestamp: 2026-02-17T23:02:38.166Z
-    thinking: Let me think about this...
+    process:
+      - type: thinking
+        content: Let me think about this...
+  - type: message
+    role: assistant
+    speaker: assistant
+    timestamp: 2026-02-17T23:02:38.166Z
     content: Final answer
 "
 `;
@@ -102,14 +113,19 @@ timeline:
     role: tool
     speaker: tool
     timestamp: 2026-02-17T23:02:38.166Z
-    content: File not found
-    toolCalls:
-      - id: call1
+    process:
+      - type: tool_call
+        id: call1
         name: read
         arguments: {}
         result:
           content: File not found
           isError: true
+  - type: message
+    role: tool
+    speaker: tool
+    timestamp: 2026-02-17T23:02:38.166Z
+    content: File not found
 "
 `;
 
@@ -179,9 +195,9 @@ timeline:
     role: assistant
     speaker: assistant
     timestamp: 2026-02-17T23:02:59.000Z
-    content: Let me write that to a file.
-    toolCalls:
-      - id: call1
+    process:
+      - type: tool_call
+        id: call1
         name: write
         arguments:
           file_path: /test.md
@@ -189,6 +205,11 @@ timeline:
         result:
           content: Successfully wrote 100 bytes to /test.md
           isError: false
+  - type: message
+    role: assistant
+    speaker: assistant
+    timestamp: 2026-02-17T23:02:59.000Z
+    content: Let me write that to a file.
 "
 `;
 
@@ -233,10 +254,17 @@ timeline:
     speaker: assistant
     timestamp: 2026-02-17T12:00:02.000Z
     model: MiniMax-M2.5
-    thinking: Assistant thinking process here
-    content: Assistant response text
-    toolCalls:
-      - id: call_001
+    process:
+      - type: thinking
+        content: Assistant thinking process here
+  - type: message
+    role: assistant
+    speaker: assistant
+    timestamp: 2026-02-17T12:00:02.000Z
+    model: MiniMax-M2.5
+    process:
+      - type: tool_call
+        id: call_001
         name: write
         arguments:
           file_path: /test.txt
@@ -244,6 +272,12 @@ timeline:
         result:
           content: Successfully wrote 100 bytes to /test.txt
           isError: false
+  - type: message
+    role: assistant
+    speaker: assistant
+    timestamp: 2026-02-17T12:00:02.000Z
+    model: MiniMax-M2.5
+    content: Assistant response text
   - type: message
     role: assistant
     speaker: assistant

@@ -24,17 +24,19 @@
   "dependencies": {
     "@astrojs/check": "^0.9.6",
     "@astrojs/react": "^4.4.2",
+    "@nanostores/react": "^1.0.0",
     "astro": "^5.0.0",
     "autoprefixer": "^10.4.21",
     "c12": "^3.0.0",
     "date-fns": "^4.1.0",
     "defu": "^6.1.4",
-    "yaml": "^2.7.1",
     "marked": "^17.0.3",
     "marked-shiki": "^1.2.1",
+    "nanostores": "^1.1.1",
     "react": "^19.2.4",
     "react-markdown": "^10.1.0",
     "shiki": "^3.23.0",
+    "yaml": "^2.7.1",
     "zod": "^3.24.0"
   },
   "devDependencies": {

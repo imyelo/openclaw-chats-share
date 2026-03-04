@@ -3,6 +3,7 @@ import { Marked } from 'marked'
 import markedShiki from 'marked-shiki'
 import MessageHeader from './MessageHeader.astro'
 import { getHighlighter } from '../lib/highlighter'
+import '../styles/prose.css'
 
 interface Props {
   author: string
@@ -64,7 +65,7 @@ const htmlContent = await md.parse(content)
   <div class:list={['message-body', isAgent ? 'body-agent' : 'body-user']}>
     <!-- set:html content is trusted (session logs); :global() selectors below
          target the injected elements that won't carry Astro's scoping attr. -->
-    <div class="message-content" set:html={htmlContent} />
+    <div class="message-content prose" set:html={htmlContent} />
   </div>
 </article>
 
@@ -108,164 +109,5 @@ const htmlContent = await md.parse(content)
   .message-content {
     font-size: 14.5px;
     line-height: 1.75;
-  }
-
-  /* ── Prose (markdown rendered via set:html) ── */
-
-  .message-content :global(h1),
-  .message-content :global(h2),
-  .message-content :global(h3),
-  .message-content :global(h4),
-  .message-content :global(h5),
-  .message-content :global(h6) {
-    margin-top: 1em;
-    margin-bottom: 0.5em;
-    font-weight: 600;
-    font-family: var(--font-serif);
-    color: var(--text-primary);
-  }
-
-  .message-content :global(h1) { font-size: 1.5em; }
-  .message-content :global(h2) { font-size: 1.25em; }
-  .message-content :global(h3) { font-size: 1.1em; }
-
-  .message-content :global(p) {
-    margin-top: 1em;
-    margin-bottom: 1em;
-    color: #a8a7a5;
-  }
-
-  .message-content :global(ul),
-  .message-content :global(ol) {
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
-    padding-left: 1.5em;
-    color: #a8a7a5;
-  }
-
-  .message-content :global(li) {
-    margin-top: 0.375em;
-    margin-bottom: 0.375em;
-    color: #a8a7a5;
-  }
-
-  .message-content :global(strong),
-  .message-content :global(b) {
-    color: #ffffff;
-    font-weight: 700;
-  }
-
-  .message-content :global(a) {
-    color: var(--accent);
-    text-decoration: none;
-    text-underline-offset: 2px;
-    transition: color 0.2s;
-  }
-
-  .message-content :global(a:hover) {
-    color: var(--accent-hover);
-    text-decoration: underline;
-  }
-
-  .message-content :global(code) {
-    color: var(--accent);
-    background: var(--bg-tertiary);
-    padding: 0.125em 0.375em;
-    border-radius: 2px;
-    font-size: 0.875em;
-    font-family: var(--font-mono);
-  }
-
-  .message-content :global(pre) {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 1em;
-    overflow-x: auto;
-    margin-top: 0.75em;
-    margin-bottom: 0.75em;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
-  }
-
-  /* shiki wraps output in <pre class="shiki"> — override background to keep design consistent with inline styles. */
-  .message-content :global(pre.shiki) {
-    background-color: var(--bg-secondary) !important;
-  }
-
-  .message-content :global(pre::-webkit-scrollbar) {
-    height: 6px;
-    width: 6px;
-  }
-
-  .message-content :global(pre::-webkit-scrollbar-track) {
-    background: transparent;
-  }
-
-  .message-content :global(pre::-webkit-scrollbar-thumb) {
-    background: var(--border);
-    border-radius: 3px;
-  }
-
-  .message-content :global(pre::-webkit-scrollbar-thumb:hover) {
-    background: var(--text-muted);
-  }
-
-  .message-content :global(pre code) {
-    background: transparent;
-    padding: 0;
-    border-radius: 0;
-    color: var(--text-primary);
-    font-size: 0.875em;
-  }
-
-  .message-content :global(blockquote) {
-    margin: 1em 0;
-    padding: 0.75em 1em;
-    border-left: 3px solid var(--accent);
-    color: var(--text-secondary);
-    font-style: normal;
-    background: var(--bg-secondary);
-    border-radius: 0 4px 4px 0;
-  }
-
-  .message-content :global(blockquote p:first-of-type) { margin-top: 0; }
-  .message-content :global(blockquote p:last-of-type)  { margin-bottom: 0; }
-
-  .message-content :global(hr) {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 1.5em 0;
-  }
-
-  .message-content :global(table) {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.875em;
-  }
-
-  .message-content :global(th),
-  .message-content :global(td) {
-    border: 1px solid var(--border);
-    padding: 0.5em 1em;
-    text-align: left;
-  }
-
-  .message-content :global(th) {
-    color: var(--text-primary);
-    background: var(--bg-tertiary);
-  }
-
-  .message-content :global(td) {
-    color: #c5c4c2;
-  }
-
-  .message-content :global(img) {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 4px;
-    margin-top: 0.75em;
-    margin-bottom: 0.75em;
   }
 </style>

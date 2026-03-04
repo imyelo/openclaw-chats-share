@@ -2,14 +2,21 @@
 import ChatLayout from '../../layouts/ChatLayout.astro';
 import ChatMessage from '../../components/ChatMessage.astro';
 import { CollapsibleMessage } from '../../components/CollapsibleMessage';
+import { ShowProcessToggle } from '../../components/ShowProcessToggle';
 import { AVATAR_COLORS } from '../../constants/index.js';
 import {
   getAllChatsWithContent,
   type ChatWithContent,
   type ChatMessage as ChatMsg,
   type ChatEvent,
-  type ChatToolCall,
+  type ProcessBlock,
 } from '../../lib/chats';
+import {
+  isSpeakerAgent,
+  buildToolCallContent,
+  expandEventToDirective,
+  type RenderItem,
+} from '../../lib/timeline-utils';
 
 export async function getStaticPaths() {
   return (await getAllChatsWithContent()).map(chat => ({
@@ -28,169 +35,42 @@ const displayTitle = title || '';
 
 const showProcessByDefault = defaultShowProcess;
 
-// Resolve whether a participant name is an agent.
-function isSpeakerAgent(speaker: string): boolean {
-  if (participants && speaker in participants) {
-    return participants[speaker].role === 'agent';
-  }
-  const lower = speaker.toLowerCase();
-  return lower.includes('agent') || lower.includes('assistant');
-}
-
-// Wrap content in a fenced code block with adaptive fence length.
-function fenceBlock(content: string): string {
-  let maxRun = 2;
-  for (const m of content.matchAll(/`+/g)) {
-    if (m[0].length > maxRun) maxRun = m[0].length;
-  }
-  const fence = '`'.repeat(maxRun + 1);
-  return `${fence}\n${content}\n${fence}`;
-}
-
-// Format a tool call as a markdown string for the collapsible body.
-function buildToolCallContent(tc: ChatToolCall): string {
-  const argLines: string[] = [];
-
-  switch (tc.name) {
-    case 'read': {
-      const fp = tc.arguments.file_path as string | undefined;
-      if (fp) argLines.push(`**File**: \`${fp}\``);
-      break;
-    }
-    case 'write': {
-      const fp = tc.arguments.file_path as string | undefined;
-      const content = tc.arguments.content as string | undefined;
-      if (fp) argLines.push(`**File**: ${fp}`);
-      if (content) argLines.push(`**Content** (${content.length} chars):\n${fenceBlock(content)}`);
-      break;
-    }
-    case 'edit': {
-      const fp = tc.arguments.file_path as string | undefined;
-      const oldText = tc.arguments.oldText as string | undefined;
-      const newText = tc.arguments.newText as string | undefined;
-      if (fp) argLines.push(`**File**: ${fp}`);
-      if (oldText) argLines.push(`**Old**:\n${fenceBlock(oldText)}`);
-      if (newText) argLines.push(`**New**:\n${fenceBlock(newText)}`);
-      break;
-    }
-    case 'exec': {
-      const command = tc.arguments.command as string | undefined;
-      if (command) argLines.push(`**Command**:\n${fenceBlock(command)}`);
-      break;
-    }
-    case 'process': {
-      const name = tc.arguments.name as string | undefined;
-      const command = tc.arguments.command as string | undefined;
-      if (name) argLines.push(`**Process**: ${name}`);
-      if (command) argLines.push(`**Command**:\n${fenceBlock(command)}`);
-      break;
-    }
-    case 'curl': {
-      const method = tc.arguments.method as string | undefined;
-      const url = tc.arguments.url as string | undefined;
-      const body = tc.arguments.body as string | undefined;
-      if (method) argLines.push(`**Method**: ${method}`);
-      if (url) argLines.push(`**URL**: ${url}`);
-      if (body) argLines.push(`**Body**:\n${fenceBlock(body)}`);
-      break;
-    }
-    default: {
-      for (const [key, value] of Object.entries(tc.arguments)) {
-        const strValue = typeof value === 'string' ? value : JSON.stringify(value);
-        argLines.push(`**${key}**:\n${fenceBlock(strValue)}`);
-      }
-    }
-  }
-
-  const parts: string[] = [];
-  if (argLines.length > 0) {
-    parts.push(argLines.join('\n\n'));
-    parts.push('***');
-  }
-  if (tc.result) {
-    parts.push(tc.result.isError ? tc.result.content : fenceBlock(tc.result.content));
-  }
-  return parts.join('\n\n');
-}
-
-// Map a non-message event to directive display properties.
-function expandEventToDirective(event: ChatEvent): {
-  type: string; icon: string; label: string; content: string; collapsed: boolean;
-} {
-  const e = event as Record<string, unknown>;
-  const content = String(e.content || '');
-  const title = e.title ? String(e.title) : null;
-  const collapsed = Boolean(e.collapsed ?? false);
-  switch (event.type) {
-    case 'session':
-      return { type: 'session', icon: '✅', label: title ?? `Session Initialized ${e.cwd || ''}`, content, collapsed };
-    case 'model_change':
-      return { type: 'custom', icon: '🔧', label: title ?? `Model Change: ${e.model || ''} (${e.provider || ''})`, content, collapsed };
-    case 'thinking_level_change':
-      return { type: 'thinking_level_change', icon: '🧠', label: title ?? `Thinking level: ${e.level || ''}`, content, collapsed };
-    case 'compaction':
-      return { type: 'custom', icon: '🗜️', label: title ?? `Context Compaction: ${e.tokensBefore ?? ''} tokens`, content, collapsed };
-    case 'custom': {
-      const customType = String(e.customType || 'custom');
-      if (customType === 'model-snapshot') {
-        return { type: 'custom', icon: '⚙️', label: title ?? `Model Snapshot: ${e.model || ''} (${e.provider || ''})`, content, collapsed };
-      }
-      return { type: 'custom', icon: '⚙️', label: title ?? customType, content, collapsed };
-    }
-    default:
-      return { type: 'custom', icon: '⚙️', label: title ?? event.type, content, collapsed };
-  }
-}
-
-type RenderItem = {
-  kind: 'text' | 'directive';
-  speaker: string;
-  timestamp: string;
-  isUser: boolean;
-  content?: string;
-  type?: string;
-  icon?: string;
-  label?: string;
-  collapsed?: boolean;
-};
-
 // Build flat render list from the timeline
 const messages: RenderItem[] = [];
 for (const item of timeline) {
   if (item.type === 'message') {
     const msg = item as ChatMsg;
     const speaker = msg.speaker || msg.role;
-    const isUser = !isSpeakerAgent(speaker);
+    const isUser = !isSpeakerAgent(speaker, participants);
 
-    // Thinking block
-    if (msg.thinking) {
-      messages.push({
-        kind: 'directive',
-        speaker,
-        timestamp: msg.timestamp,
-        isUser,
-        type: 'thinking_level_change',
-        icon: '🧠',
-        label: 'Thinking',
-        content: msg.thinking,
-        collapsed: true,
-      });
-    }
-
-    // Tool calls (process — shown before the final text response)
-    for (const tc of msg.toolCalls || []) {
-      const isError = tc.result?.isError ?? false;
-      messages.push({
-        kind: 'directive',
-        speaker,
-        timestamp: msg.timestamp,
-        isUser,
-        type: isError ? 'error' : 'custom',
-        icon: isError ? '⚠️' : '🔧',
-        label: tc.title ?? `Tool Call - ${tc.name}${tc.arguments.file_path ? ` · ${tc.arguments.file_path}` : ''}`,
-        content: buildToolCallContent(tc),
-        collapsed: tc.collapsed ?? false,
-      });
+    // Process blocks (thinking, tool calls)
+    for (const block of msg.process || []) {
+      if (block.type === 'thinking') {
+        messages.push({
+          kind: 'directive',
+          speaker,
+          timestamp: msg.timestamp,
+          isUser,
+          type: 'thinking_level_change',
+          icon: '🧠',
+          label: 'Thinking',
+          content: block.content,
+          collapsed: block.collapsed ?? false,
+        });
+      } else if (block.type === 'tool_call') {
+        const isError = block.result?.isError ?? false;
+        messages.push({
+          kind: 'directive',
+          speaker,
+          timestamp: msg.timestamp,
+          isUser,
+          type: isError ? 'error' : 'custom',
+          icon: isError ? '⚠️' : '🔧',
+          label: block.title ?? `Tool Call - ${block.name}${block.arguments.file_path ? ` · ${block.arguments.file_path}` : ''}`,
+          content: buildToolCallContent(block as Extract<ProcessBlock, { type: 'tool_call' }>),
+          collapsed: block.collapsed ?? false,
+        });
+      }
     }
 
     // Text content
@@ -212,7 +92,7 @@ for (const item of timeline) {
       kind: 'directive',
       speaker: eventSpeaker,
       timestamp: event.timestamp,
-      isUser: eventSpeaker ? !isSpeakerAgent(eventSpeaker) : false,
+      isUser: eventSpeaker ? !isSpeakerAgent(eventSpeaker, participants) : false,
       type: directive.type,
       icon: directive.icon,
       label: directive.label,
@@ -229,17 +109,12 @@ const regularMessageCount = messages.filter(msg => msg.kind !== 'directive').len
 const authorColorMap = new Map<string, number>();
 let colorIndex = 0;
 messages.forEach(msg => {
-  if (msg.speaker && !isSpeakerAgent(msg.speaker) && !authorColorMap.has(msg.speaker)) {
+  if (msg.speaker && !isSpeakerAgent(msg.speaker, participants) && !authorColorMap.has(msg.speaker)) {
     authorColorMap.set(msg.speaker, colorIndex % AVATAR_COLORS.length);
     colorIndex++;
   }
 });
 ---
-
-<!-- Pass defaultShowProcess to client-side script via data attribute -->
-<script is:inline>
-  document.body.dataset.showProcessByDefault = String(!!{showProcessByDefault});
-</script>
 
 <ChatLayout
   title={displayTitle}
@@ -248,12 +123,10 @@ messages.forEach(msg => {
   date={date}
   messageCount={totalMessages}
   regularMessageCount={regularMessageCount}
+  showProcessByDefault={showProcessByDefault}
 >
   {hasProcessMessages && (
-    <button slot="controls" id="toggle-collapsible-btn" class="toggle-btn" aria-label="Show process information" aria-pressed={String(!showProcessByDefault)}>
-      <span class="toggle-pip" aria-hidden="true"></span>
-      <span class="toggle-text">{showProcessByDefault ? 'hide process' : 'show process'}</span>
-    </button>
+    <ShowProcessToggle client:load slot="controls" defaultShow={showProcessByDefault} />
   )}
 
   {messages.map((msg, index) => {
@@ -261,7 +134,7 @@ messages.forEach(msg => {
     const isLastInGroup = index === messages.length - 1 || messages[index + 1].speaker !== msg.speaker;
 
     if (msg.kind === 'directive') {
-      const avatarColorIndex = msg.speaker && !isSpeakerAgent(msg.speaker) ? authorColorMap.get(msg.speaker) : undefined;
+      const avatarColorIndex = msg.speaker && !isSpeakerAgent(msg.speaker, participants) ? authorColorMap.get(msg.speaker) : undefined;
       return (
         <CollapsibleMessage
           client:load
@@ -279,7 +152,7 @@ messages.forEach(msg => {
       );
     }
 
-    const avatarColorIndex = msg.speaker && !isSpeakerAgent(msg.speaker) ? authorColorMap.get(msg.speaker) : undefined;
+    const avatarColorIndex = msg.speaker && !isSpeakerAgent(msg.speaker, participants) ? authorColorMap.get(msg.speaker) : undefined;
     return (
       <ChatMessage
         author={msg.speaker}
@@ -294,215 +167,3 @@ messages.forEach(msg => {
   })}
 
 </ChatLayout>
-
-<style>
-  /* ── Terminal LED toggle ───────────────────────────────── */
-
-  .toggle-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 0;
-    color: var(--text-muted);
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    padding: 0.3125rem 0.625rem 0.3125rem 0.5rem;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
-  }
-
-  /* Amber wash on hover */
-  .toggle-btn::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(212, 168, 83, 0.06) 50%,
-      transparent 100%
-    );
-    opacity: 0;
-    transition: opacity 0.25s ease;
-  }
-
-  .toggle-btn:hover::before { opacity: 1; }
-
-  .toggle-btn:hover {
-    border-color: var(--accent-dim);
-    color: var(--text-secondary);
-    box-shadow:
-      0 0 10px rgba(212, 168, 83, 0.1),
-      inset 0 0 6px rgba(212, 168, 83, 0.03);
-  }
-
-  /* When process is hidden: mute the button */
-  .toggle-btn[aria-pressed="true"] {
-    color: var(--text-muted);
-    border-color: var(--border);
-  }
-
-  /* LED pip */
-  .toggle-pip {
-    display: block;
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    background: var(--accent);
-    box-shadow:
-      0 0 3px var(--accent),
-      0 0 7px rgba(212, 168, 83, 0.5);
-    transition: background 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  /* Pip dims when process is hidden */
-  .toggle-btn[aria-pressed="true"] .toggle-pip {
-    background: var(--text-muted);
-    box-shadow: none;
-  }
-
-  /* CRT-flicker on toggle */
-  @keyframes crt-flicker {
-    0%   { opacity: 1;    }
-    20%  { opacity: 0.25; }
-    40%  { opacity: 0.85; }
-    60%  { opacity: 0.15; }
-    80%  { opacity: 0.75; }
-    100% { opacity: 1;    }
-  }
-
-  .toggle-btn.is-flickering {
-    animation: crt-flicker 0.18s steps(4, jump-none);
-  }
-</style>
-
-<script>
-  function updateHeadersVisibility(isHidden: boolean) {
-    // Select all messages in order
-    const articles = document.querySelectorAll('article[data-author]');
-    let lastVisibleAuthor: string | null = null;
-
-    articles.forEach((article) => {
-      // Check if this article is currently hidden by our global class
-      const isCollapsible = article.classList.contains('global-collapsible-message');
-      const isArticleHidden = isHidden && isCollapsible;
-
-      const header = article.querySelector('[data-header="true"]');
-      if (!header) return;
-
-      if (isArticleHidden) {
-        // It's hidden, don't update lastVisibleAuthor
-        return;
-      }
-
-      const author = article.getAttribute('data-author');
-
-      if (author !== lastVisibleAuthor) {
-        // This is the first visible message for this author, show header
-        header.classList.remove('hidden-header');
-        article.classList.remove('not-first-in-group');
-      } else {
-        // Same author as previous visible message, hide header
-        header.classList.add('hidden-header');
-        article.classList.add('not-first-in-group');
-      }
-
-      lastVisibleAuthor = author;
-    });
-  }
-
-  function setBtnState(btn: HTMLElement, isHidden: boolean) {
-    const label = isHidden ? 'Show process information' : 'Hide process information';
-    btn.setAttribute('aria-label', label);
-    btn.setAttribute('aria-pressed', String(isHidden));
-    const textEl = btn.querySelector('.toggle-text');
-    if (textEl) { textEl.textContent = isHidden ? 'show process' : 'hide process'; }
-  }
-
-  // Animated batch hide/show for collapsible process messages.
-  // display:none cannot be transitioned, so we drive visibility through inline
-  // styles: fade-out → display:none when hiding, display:'' → fade-in when showing.
-  function animateCollapsibles(show: boolean) {
-    const items = document.querySelectorAll<HTMLElement>('.global-collapsible-message');
-    if (show) {
-      // Reveal elements at opacity 0, then animate to 1.
-      items.forEach(el => {
-        el.style.display = '';
-        el.style.opacity = '0';
-      });
-      // Double rAF ensures the browser has painted the display:'' state
-      // before starting the transition (avoids the transition being skipped).
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          items.forEach(el => {
-            el.style.transition = 'opacity 0.2s ease';
-            el.style.opacity = '';
-          });
-          setTimeout(() => {
-            items.forEach(el => { el.style.transition = ''; });
-          }, 220);
-        });
-      });
-    } else {
-      // Fade out, then collapse with display:none.
-      items.forEach(el => {
-        el.style.transition = 'opacity 0.12s ease';
-        el.style.opacity = '0';
-      });
-      setTimeout(() => {
-        items.forEach(el => {
-          el.style.display = 'none';
-          el.style.opacity = '';
-          el.style.transition = '';
-        });
-      }, 130);
-    }
-  }
-
-  function setupToggle() {
-    const btn = document.getElementById('toggle-collapsible-btn');
-    if (!btn) return;
-
-    // Check frontmatter defaultShowProcess setting
-    const showProcessByDefault = document.body.dataset.showProcessByDefault === 'true';
-
-    // Default: process messages are hidden unless showProcessByDefault is true
-    const shouldHide = !showProcessByDefault;
-    if (shouldHide && !document.body.classList.contains('hide-collapsible-messages')) {
-      document.body.classList.add('hide-collapsible-messages');
-    }
-
-    // Show or hide all collapsibles based on the default setting
-    document.querySelectorAll('.global-collapsible-message').forEach(el => {
-      (el as HTMLElement).style.display = shouldHide ? 'none' : '';
-    });
-
-    setBtnState(btn, shouldHide);
-    updateHeadersVisibility(shouldHide);
-
-    btn.addEventListener('click', () => {
-      document.body.classList.toggle('hide-collapsible-messages');
-      const isHidden = document.body.classList.contains('hide-collapsible-messages');
-
-      // CRT flicker effect on toggle
-      btn.classList.add('is-flickering');
-      btn.addEventListener('animationend', () => btn.classList.remove('is-flickering'), { once: true });
-
-      setBtnState(btn, isHidden);
-      updateHeadersVisibility(isHidden);
-      animateCollapsibles(!isHidden);
-    });
-  }
-
-  // Module scripts are deferred and run after the DOM is ready.
-  // astro:page-load only fires when View Transitions (ClientRouter) are enabled,
-  // so we call setupToggle() directly here instead.
-  setupToggle();
-</script>
