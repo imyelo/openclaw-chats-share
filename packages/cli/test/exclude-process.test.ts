@@ -1,7 +1,6 @@
-import { describe, it, expect } from 'bun:test'
-import { YAMLGenerator } from '../src/yaml-generator/index.js'
-import { DEFAULT_CONSTRAINT } from '../src/format-constraint/index.js'
-import type { ParsedSession } from '../src/session-log-parser/index.js'
+import { describe, expect, it } from 'bun:test'
+import { DEFAULT_CONSTRAINT, YAMLGenerator } from '../src/index'
+import type { ParsedSession } from '../src/index'
 
 const mockSession: ParsedSession = {
   meta: {
