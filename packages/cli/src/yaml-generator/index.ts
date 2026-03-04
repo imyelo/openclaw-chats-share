@@ -183,7 +183,7 @@ export class YAMLGenerator {
         name: msg.toolCall.name,
         arguments: msg.toolCall.arguments,
       }
-      if (toolResultMsg?.toolResult) {
+      if (toolResultMsg?.toolResult && !this.shouldExclude('toolresults')) {
         tc.result = {
           content: toolResultMsg.toolResult.content,
           isError: toolResultMsg.toolResult.isError,
