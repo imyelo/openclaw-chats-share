@@ -141,6 +141,10 @@ export class YAMLGenerator {
         }
         result.push(...this.buildMessageEntries(item.data, toolResultMap))
       } else {
+        // Filter events based on excludeProcess
+        if (this.shouldExclude(item.data.type)) {
+          continue
+        }
         const entry = this.buildEventEntry(item.data)
         if (entry) {
           result.push(entry)

@@ -36,6 +36,14 @@ const mockSession: ParsedSession = {
   events: [],
 }
 
+const mockSessionWithEvents: ParsedSession = {
+  ...mockSession,
+  events: [
+    { type: 'session', id: 'e1', timestamp: '2024-01-01T00:00:00Z', cwd: '/test' },
+    { type: 'model_change', id: 'e2', timestamp: '2024-01-01T00:00:30Z', modelId: 'gpt-4', provider: 'openai' },
+  ],
+}
+
 describe('YAMLGenerator excludeProcess', () => {
   it('should exclude thinking when specified', () => {
     const generator = new YAMLGenerator(DEFAULT_CONSTRAINT, {
@@ -65,5 +73,21 @@ describe('YAMLGenerator excludeProcess', () => {
     const yaml = generator.generate(mockSession)
     expect(yaml).not.toContain('thinking')
     expect(yaml).not.toContain('tool_call')
+  })
+
+  it('should exclude session events when specified', () => {
+    const generator = new YAMLGenerator(DEFAULT_CONSTRAINT, {
+      excludeProcess: ['session'],
+    })
+    const yaml = generator.generate(mockSessionWithEvents)
+    expect(yaml).not.toContain('type: session')
+  })
+
+  it('should exclude model_change events when specified', () => {
+    const generator = new YAMLGenerator(DEFAULT_CONSTRAINT, {
+      excludeProcess: ['model_change'],
+    })
+    const yaml = generator.generate(mockSessionWithEvents)
+    expect(yaml).not.toContain('type: model_change')
   })
 })
