@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import { memo, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -51,7 +52,7 @@ function MessageHeader({
         className={styles.authorTimestamp}
         title={timestamp}
       >
-        {timestamp.split(' ').pop()}
+        {dayjs(timestamp).format('HH:mm')}
       </span>
     </div>
   )
@@ -80,7 +81,8 @@ export const CollapsibleMessage = memo(function CollapsibleMessage({
   isLastInGroup?: boolean
   avatarColorIndex?: number
 }) {
-  const [isOpen, setIsOpen] = useState(!collapsed)
+  const hasContent = Boolean(content && content.trim() !== '')
+  const [isOpen, setIsOpen] = useState(hasContent ? !collapsed : false)
 
   return (
     <article
@@ -102,28 +104,36 @@ export const CollapsibleMessage = memo(function CollapsibleMessage({
         <div className={styles.collapsibleBorder}>
           <button
             type="button"
-            onClick={() => setIsOpen(prev => !prev)}
-            className={styles.collapsibleToggle}
+            onClick={() => {
+              if (hasContent) {
+                setIsOpen(prev => !prev)
+              }
+            }}
+            className={cn(styles.collapsibleToggle, !hasContent && styles.collapsibleToggleDisabled)}
+            disabled={!hasContent}
+            aria-disabled={!hasContent}
           >
             {icon && <span className={styles.collapsibleTypeIcon}>{icon}</span>}
             <span className={styles.collapsibleTypeLabel}>{label}</span>
-            <span className={styles.chevronWrapper}>
-              <svg
-                className={cn(styles.chevron, isOpen && styles.chevronOpen)}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                role="img"
-                aria-label={isOpen ? 'Collapse' : 'Expand'}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="m6 9 6 6 6-6"
-                />
-              </svg>
-            </span>
+            {hasContent && (
+              <span className={styles.chevronWrapper}>
+                <svg
+                  className={cn(styles.chevron, isOpen && styles.chevronOpen)}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  role="img"
+                  aria-label={isOpen ? 'Collapse' : 'Expand'}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="m6 9 6 6 6-6"
+                  />
+                </svg>
+              </span>
+            )}
           </button>
           <div
             className={cn(

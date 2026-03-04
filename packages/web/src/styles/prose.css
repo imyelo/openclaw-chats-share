@@ -73,7 +73,9 @@
   border: 1px solid var(--border);
   border-radius: 4px;
   padding: 1em;
-  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  word-break: break-all;
   margin-top: 0.75em;
   margin-bottom: 0.75em;
   scrollbar-width: thin;
@@ -109,6 +111,9 @@
   border-radius: 0;
   color: var(--text-primary);
   font-size: 0.875em;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  word-break: break-all;
 }
 
 .prose blockquote {

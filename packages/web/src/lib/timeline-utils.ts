@@ -143,7 +143,7 @@ export function expandEventToDirective(event: ChatEvent): {
     case 'model_change':
       return {
         type: 'custom',
-        icon: '🔧',
+        icon: '⚙️',
         label: title ?? `Model Change: ${e.model || ''} (${e.provider || ''})`,
         content,
         collapsed,
@@ -169,7 +169,7 @@ export function expandEventToDirective(event: ChatEvent): {
       if (customType === 'model-snapshot') {
         return {
           type: 'custom',
-          icon: '⚙️',
+          icon: '🔧',
           label: title ?? `Model Snapshot: ${e.model || ''} (${e.provider || ''})`,
           content,
           collapsed,

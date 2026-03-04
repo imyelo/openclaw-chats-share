@@ -1,5 +1,6 @@
 ---
 import { AVATAR_COLORS, CSS_CLASSES } from '../constants/index.js'
+import dayjs from 'dayjs'
 
 interface Props {
   author?: string
@@ -32,7 +33,7 @@ if (avatarColorIndex !== undefined) {
     </div>
     <span class="author-name">{author}</span>
     <span class="author-timestamp" title={timestamp}>
-      {timestamp.split(' ').pop()}
+      {dayjs(timestamp).format('HH:mm')}
     </span>
   </div>
 )}
