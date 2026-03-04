@@ -77,10 +77,10 @@ export class YAMLGenerator {
       case 'participants': {
         const map: Record<string, { role: 'human' | 'agent'; model?: string }> = {}
         for (const m of session.messages) {
-          if (m.role === 'user' && !('user' in map)) {
-            map.user = { role: 'human' }
-          } else if ((m.role === 'assistant' || m.role === 'toolResult') && !('assistant' in map)) {
-            map.assistant = { role: 'agent', ...(m.model ? { model: m.model } : {}) }
+          if (m.role === 'human' && !('human' in map)) {
+            map.human = { role: 'human' }
+          } else if ((m.role === 'agent' || m.role === 'toolResult') && !('agent' in map)) {
+            map.agent = { role: 'agent', ...(m.model ? { model: m.model } : {}) }
           }
         }
         return Object.keys(map).length > 0 ? map : undefined
@@ -107,7 +107,7 @@ export class YAMLGenerator {
       if (msg.role === 'toolResult' && msg.toolResult?.toolCallId) {
         toolResultMap.set(msg.toolResult.toolCallId, msg)
       }
-      if (msg.role === 'assistant' && msg.toolCall?.id) {
+      if (msg.role === 'agent' && msg.toolCall?.id) {
         toolCallIds.add(msg.toolCall.id)
       }
     }

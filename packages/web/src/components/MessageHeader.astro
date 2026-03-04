@@ -12,7 +12,7 @@ interface Props {
 const { author, timestamp, isFirstInGroup, avatarColorIndex } = Astro.props
 
 const authorLower = (author ?? '').toLowerCase()
-const isAgent = authorLower.includes('agent') || authorLower.includes('assistant')
+const isAgent = authorLower.includes('agent')
 
 let avatarBg: string | undefined
 let avatarColor: string | undefined
@@ -26,7 +26,7 @@ if (avatarColorIndex !== undefined) {
 {author && timestamp && (
   <div class:list={['message-header', !isFirstInGroup && CSS_CLASSES.hiddenHeader]} data-header="true">
     <div
-      class:list={['avatar', isAgent ? 'avatar-agent' : 'avatar-user']}
+      class:list={['avatar', isAgent ? 'avatar-agent' : 'avatar-human']}
       style={avatarBg ? `background-color: ${avatarBg}; color: ${avatarColor}` : undefined}
     >
       {author.charAt(0).toUpperCase()}
@@ -70,7 +70,7 @@ if (avatarColorIndex !== undefined) {
     box-shadow: 0 0 0 1px var(--border);
   }
 
-  .avatar-user {
+  .avatar-human {
     box-shadow: 0 0 0 1px var(--border);
   }
 

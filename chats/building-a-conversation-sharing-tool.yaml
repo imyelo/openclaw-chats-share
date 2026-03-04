@@ -15,13 +15,13 @@ participants:
     model: MiniMax-M2.5
 timeline:
   - type: message
-    role: user
+    role: human
     speaker: Human 1
     timestamp: 2026-02-19T17:10:00.000Z
     content: |-
       I want to build a conversation sharing tool. ~~I initially considered just taking screenshots~~, but I think a webpage format would be better.
   - type: message
-    role: assistant
+    role: agent
     speaker: Agent
     timestamp: 2026-02-19T17:11:00.000Z
     model: MiniMax-M2.5
@@ -37,7 +37,7 @@ timeline:
     content: |-
       Great idea! What features do you have in mind? We could generate Markdown or directly produce a static webpage.
   - type: message
-    role: user
+    role: human
     speaker: Human 1
     timestamp: 2026-02-19T17:12:00.000Z
     content: |-
@@ -47,7 +47,7 @@ timeline:
       - **Unordered lists** for listing requirements (Bullets)
       - Standard Markdown like `code block` and so on.
   - type: message
-    role: assistant
+    role: agent
     speaker: Agent
     timestamp: 2026-02-19T17:13:00.000Z
     model: MiniMax-M2.5
@@ -72,7 +72,7 @@ timeline:
       }
       ```
   - type: message
-    role: user
+    role: human
     speaker: Human 2
     timestamp: 2026-02-19T17:15:00.000Z
     content: |-
@@ -81,7 +81,7 @@ timeline:
       > This is extremely useful for developer debugging. I want error logs to be visually prominent without breaking the overall minimal aesthetic.
       > — Excerpt from my personal notes
   - type: message
-    role: assistant
+    role: agent
     speaker: Agent
     timestamp: 2026-02-19T17:16:00.000Z
     model: MiniMax-M2.5
@@ -99,13 +99,13 @@ timeline:
     content: |+
       Of course. Like the red warning box above — for system-level error records, we can highlight them with a red collapsible panel. Very intuitive.
   - type: message
-    role: user
+    role: human
     speaker: Human 2
     timestamp: 2026-02-19T17:18:00.000Z
     content: |-
       That's great. We also need a panel for special events, like "Session Started" or "Task Completed".
   - type: session
-    role: assistant
+    role: agent
     speaker: Agent
     timestamp: 2026-02-19T17:19:00.000Z
     title: "Session Initialized"
@@ -114,7 +114,7 @@ timeline:
       Session ID: `sess_1029384756`
       Associated platform: `Discord`
   - type: custom
-    role: assistant
+    role: agent
     speaker: Agent
     timestamp: 2026-02-19T17:19:00.000Z
     customType: plugin-call
@@ -123,7 +123,7 @@ timeline:
       Build task triggered on GitHub Repository.
       Build ID: `#8923`
   - type: message
-    role: assistant
+    role: agent
     speaker: Agent
     timestamp: 2026-02-19T17:19:00.000Z
     model: MiniMax-M2.5
@@ -136,7 +136,7 @@ timeline:
 
       ~~Just ship a rough MVP~~, we're going all the way and making the experience top-notch!
   - type: message
-    role: user
+    role: human
     speaker: Human 2
     timestamp: 2026-02-19T17:21:00.000Z
     content: |+
@@ -150,7 +150,7 @@ timeline:
 
       Please confirm that combining all these styles won't break the minimal aesthetic we're going for.
   - type: message
-    role: assistant
+    role: agent
     speaker: Agent
     timestamp: 2026-02-19T17:22:00.000Z
     model: MiniMax-M2.5

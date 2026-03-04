@@ -46,7 +46,7 @@ export interface ChatImage {
 
 export interface ChatMessage {
   type: 'message'
-  role: 'user' | 'assistant' | 'tool'
+  role: 'human' | 'agent' | 'tool'
   speaker: string
   timestamp: string
   model?: string

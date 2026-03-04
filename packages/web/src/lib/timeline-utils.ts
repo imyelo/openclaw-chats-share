@@ -20,7 +20,7 @@ export function isSpeakerAgent(speaker: string, participants?: Record<string, { 
     return participants[speaker].role === 'agent'
   }
   const lower = speaker.toLowerCase()
-  return lower.includes('agent') || lower.includes('assistant')
+  return lower.includes('agent')
 }
 
 /** Wraps content in a fenced code block, adapting fence length to avoid conflicts. */

@@ -62,7 +62,7 @@ Each message entry may carry a `process` list (thinking blocks, tool calls) and/
 
 ```yaml
 - type: message
-  role: assistant
+  role: agent
   speaker: {DisplayName}
   timestamp: {ISO 8601}
   model: {model-name}
@@ -77,7 +77,7 @@ Each message entry may carry a `process` list (thinking blocks, tool calls) and/
 
 ```yaml
 - type: message
-  role: assistant
+  role: agent
   speaker: {DisplayName}
   timestamp: {ISO 8601}
   model: {model-name}
@@ -99,7 +99,7 @@ Each message entry may carry a `process` list (thinking blocks, tool calls) and/
 
 ```yaml
 - type: message
-  role: user | assistant
+  role: human | assistant
   speaker: {DisplayName}
   timestamp: {ISO 8601}
   model: {model-name}           # assistant only
@@ -141,7 +141,7 @@ timeline:
     provider: minimax
 
   - type: message
-    role: user
+    role: human
     speaker: Alice
     timestamp: "2026-02-15T06:13:50.514Z"
     content: |
@@ -150,7 +150,7 @@ timeline:
   # CLI emits one entry per block; hand-crafted YAML may combine them.
 
   - type: message
-    role: assistant
+    role: agent
     speaker: Claude
     timestamp: "2026-02-15T06:14:05.123Z"
     model: claude-sonnet-4-6
@@ -160,7 +160,7 @@ timeline:
           Let me reason through this...
 
   - type: message
-    role: assistant
+    role: agent
     speaker: Claude
     timestamp: "2026-02-15T06:14:05.123Z"
     model: claude-sonnet-4-6
@@ -176,7 +176,7 @@ timeline:
           isError: false
 
   - type: message
-    role: assistant
+    role: agent
     speaker: Claude
     timestamp: "2026-02-15T06:14:05.123Z"
     model: claude-sonnet-4-6
@@ -190,14 +190,14 @@ timeline:
     provider: minimax
 
   - type: message
-    role: user
+    role: human
     speaker: Alice
     timestamp: "2026-02-15T06:15:00.000Z"
     content: |
       Can errors be shown?
 
   - type: message
-    role: assistant
+    role: agent
     speaker: Claude
     timestamp: "2026-02-15T06:15:10.000Z"
     model: claude-sonnet-4-6
@@ -212,7 +212,7 @@ timeline:
           isError: true
 
   - type: message
-    role: assistant
+    role: agent
     speaker: Claude
     timestamp: "2026-02-15T06:15:10.000Z"
     model: claude-sonnet-4-6

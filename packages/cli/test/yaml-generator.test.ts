@@ -14,21 +14,21 @@ const SAMPLE_SESSION: ParsedSession = {
     {
       id: 'msg1',
       timestamp: '2026-02-17T23:02:38.166Z',
-      role: 'user',
+      role: 'human',
       content: 'Hello, can you help me?',
     },
     {
       id: 'msg2',
       parentId: 'msg1',
       timestamp: '2026-02-17T23:02:52.044Z',
-      role: 'assistant',
+      role: 'agent',
       content: 'Of course! How can I assist you today?',
     },
     {
       id: 'msg3',
       parentId: 'msg2',
       timestamp: '2026-02-17T23:02:59.000Z',
-      role: 'assistant',
+      role: 'agent',
       content: 'Let me write that to a file.',
       toolCall: {
         id: 'call1',
@@ -67,7 +67,7 @@ describe('YAMLGenerator', () => {
         {
           id: 'msg1',
           timestamp: '2026-02-17T23:02:38.166Z',
-          role: 'user',
+          role: 'human',
           content: 'Hello',
           usage: {
             input: 10,
@@ -92,7 +92,7 @@ describe('YAMLGenerator', () => {
         {
           id: 'msg1',
           timestamp: '2026-02-17T23:02:38.166Z',
-          role: 'assistant',
+          role: 'agent',
           content: 'Final answer',
           thinking: 'Let me think about this...',
         },
@@ -143,7 +143,7 @@ describe('YAMLGenerator', () => {
         {
           id: 'msg1',
           timestamp: '2026-02-17T23:02:40.000Z',
-          role: 'user',
+          role: 'human',
           content: 'Hello',
         },
       ] as ParsedMessage[],

@@ -51,7 +51,7 @@ export interface ParsedMessage {
   id: string
   parentId?: string
   timestamp: string
-  role: 'user' | 'assistant' | 'toolResult'
+  role: 'human' | 'agent' | 'toolResult'
   content: string
   thinking?: string
   model?: string

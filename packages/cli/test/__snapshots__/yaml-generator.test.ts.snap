@@ -10,24 +10,24 @@ totalTokens: 0
 visibility: private
 defaultShowProcess: false
 participants:
-  user:
+  human:
     role: human
-  assistant:
+  agent:
     role: agent
 timeline:
   - type: message
-    role: user
-    speaker: user
+    role: human
+    speaker: human
     timestamp: 2026-02-17T23:02:38.166Z
     content: Hello, can you help me?
   - type: message
-    role: assistant
-    speaker: assistant
+    role: agent
+    speaker: agent
     timestamp: 2026-02-17T23:02:52.044Z
     content: Of course! How can I assist you today?
   - type: message
-    role: assistant
-    speaker: assistant
+    role: agent
+    speaker: agent
     timestamp: 2026-02-17T23:02:59.000Z
     process:
       - type: tool_call
@@ -40,8 +40,8 @@ timeline:
           content: Successfully wrote 100 bytes to /test.md
           isError: false
   - type: message
-    role: assistant
-    speaker: assistant
+    role: agent
+    speaker: agent
     timestamp: 2026-02-17T23:02:59.000Z
     content: Let me write that to a file.
 "
@@ -57,12 +57,12 @@ totalTokens: 30
 visibility: private
 defaultShowProcess: false
 participants:
-  user:
+  human:
     role: human
 timeline:
   - type: message
-    role: user
-    speaker: user
+    role: human
+    speaker: human
     timestamp: 2026-02-17T23:02:38.166Z
     content: Hello
 "
@@ -78,19 +78,19 @@ totalTokens: 0
 visibility: private
 defaultShowProcess: false
 participants:
-  assistant:
+  agent:
     role: agent
 timeline:
   - type: message
-    role: assistant
-    speaker: assistant
+    role: agent
+    speaker: agent
     timestamp: 2026-02-17T23:02:38.166Z
     process:
       - type: thinking
         content: Let me think about this...
   - type: message
-    role: assistant
-    speaker: assistant
+    role: agent
+    speaker: agent
     timestamp: 2026-02-17T23:02:38.166Z
     content: Final answer
 "
@@ -106,7 +106,7 @@ totalTokens: 0
 visibility: private
 defaultShowProcess: false
 participants:
-  assistant:
+  agent:
     role: agent
 timeline:
   - type: message
@@ -152,15 +152,15 @@ totalTokens: 0
 visibility: private
 defaultShowProcess: false
 participants:
-  user:
+  human:
     role: human
 timeline:
   - type: thinking_level_change
     timestamp: 2026-02-17T23:02:39.000Z
     level: off
   - type: message
-    role: user
-    speaker: user
+    role: human
+    speaker: human
     timestamp: 2026-02-17T23:02:40.000Z
     content: Hello
 "
@@ -176,24 +176,24 @@ totalTokens: 0
 visibility: private
 defaultShowProcess: false
 participants:
-  user:
+  human:
     role: human
-  assistant:
+  agent:
     role: agent
 timeline:
   - type: message
-    role: user
-    speaker: user
+    role: human
+    speaker: human
     timestamp: 2026-02-17T23:02:38.166Z
     content: Hello, can you help me?
   - type: message
-    role: assistant
-    speaker: assistant
+    role: agent
+    speaker: agent
     timestamp: 2026-02-17T23:02:52.044Z
     content: Of course! How can I assist you today?
   - type: message
-    role: assistant
-    speaker: assistant
+    role: agent
+    speaker: agent
     timestamp: 2026-02-17T23:02:59.000Z
     process:
       - type: tool_call
@@ -206,8 +206,8 @@ timeline:
           content: Successfully wrote 100 bytes to /test.md
           isError: false
   - type: message
-    role: assistant
-    speaker: assistant
+    role: agent
+    speaker: agent
     timestamp: 2026-02-17T23:02:59.000Z
     content: Let me write that to a file.
 "
@@ -223,9 +223,9 @@ totalTokens: 650
 visibility: private
 defaultShowProcess: false
 participants:
-  user:
+  human:
     role: human
-  assistant:
+  agent:
     role: agent
     model: MiniMax-M2.5
 timeline:
@@ -245,21 +245,21 @@ timeline:
     model: MiniMax-M2.5
     provider: minimax
   - type: message
-    role: user
-    speaker: user
+    role: human
+    speaker: human
     timestamp: 2026-02-17T12:00:01.000Z
     content: Hello, this is a test message
   - type: message
-    role: assistant
-    speaker: assistant
+    role: agent
+    speaker: agent
     timestamp: 2026-02-17T12:00:02.000Z
     model: MiniMax-M2.5
     process:
       - type: thinking
         content: Assistant thinking process here
   - type: message
-    role: assistant
-    speaker: assistant
+    role: agent
+    speaker: agent
     timestamp: 2026-02-17T12:00:02.000Z
     model: MiniMax-M2.5
     process:
@@ -273,14 +273,14 @@ timeline:
           content: Successfully wrote 100 bytes to /test.txt
           isError: false
   - type: message
-    role: assistant
-    speaker: assistant
+    role: agent
+    speaker: agent
     timestamp: 2026-02-17T12:00:02.000Z
     model: MiniMax-M2.5
     content: Assistant response text
   - type: message
-    role: assistant
-    speaker: assistant
+    role: agent
+    speaker: agent
     timestamp: 2026-02-17T12:00:04.000Z
     model: MiniMax-M2.5
     content: Final assistant message

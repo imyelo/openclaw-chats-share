@@ -45,7 +45,7 @@ All events also have `timestamp`.
 
 ```yaml
 - type: message
-  role: user | assistant
+  role: human | agent
   speaker: {DisplayName}
   timestamp: {ISO 8601}
   model: {model-name}         # assistant only, if available
@@ -109,14 +109,14 @@ timeline:
     level: "off"
 
   - type: message
-    role: user
+    role: human
     speaker: Alice
     timestamp: "2026-03-03T14:01:00.000Z"
     content: |
       I'm seeing a race condition in my event emitter setup. Here's the code...
 
   - type: message
-    role: assistant
+    role: agent
     speaker: Claude
     timestamp: "2026-03-03T14:02:00.000Z"
     model: claude-sonnet-4-6

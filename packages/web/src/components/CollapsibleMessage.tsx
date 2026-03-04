@@ -29,7 +29,7 @@ function MessageHeader({
   }
 
   const authorLower = author.toLowerCase()
-  const isAgent = authorLower.includes('agent') || authorLower.includes('assistant')
+  const isAgent = authorLower.includes('agent')
 
   let avatarStyle: { bg: string; text: string } | null = null
   if (avatarColorIndex !== undefined) {
@@ -42,7 +42,7 @@ function MessageHeader({
       data-header="true"
     >
       <div
-        className={cn(styles.avatar, isAgent ? styles.avatarAgent : styles.avatarUser)}
+        className={cn(styles.avatar, isAgent ? styles.avatarAgent : styles.avatarHuman)}
         style={avatarStyle ? { backgroundColor: avatarStyle.bg, color: avatarStyle.text } : undefined}
       >
         {author.charAt(0).toUpperCase()}

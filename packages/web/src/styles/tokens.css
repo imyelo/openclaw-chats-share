@@ -36,12 +36,12 @@
   --glow:   rgba(212, 168, 83, 0.15);
 
   /* Message bubbles */
-  /* User (human) messages are darker — dense, user-authored input */
-  --user-msg-bg:          #0c0c0c;
-  --user-msg-border:      #1c1c1c;
+  /* Human messages are darker — dense, user-authored input */
+  --human-msg-bg:          #0c0c0c;
+  --human-msg-border:      #1c1c1c;
   /* Agent messages are lighter — elevated document surface, machine output */
-  --assistant-msg-bg:     #181818;
-  --assistant-msg-border: #272727;
+  --agent-msg-bg:     #181818;
+  --agent-msg-border: #272727;
 
   /* Collapsible panel type colours */
   --collapsible-error-border:   #ef4444;

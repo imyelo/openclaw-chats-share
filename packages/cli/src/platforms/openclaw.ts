@@ -152,11 +152,19 @@ export class OpenClawParser implements Platform {
       return null
     }
 
+    // Convert Openclaw session role ('user'/'assistant') to chats-share role ('human'/'agent')
+    const roleMap: Record<'user' | 'assistant' | 'toolResult', 'human' | 'agent' | 'toolResult'> = {
+      user: 'human',
+      assistant: 'agent',
+      toolResult: 'toolResult',
+    }
+    const convertedRole = roleMap[message.role]
+
     const parsed: ParsedMessage = {
       id: event.id,
       parentId: event.parentId || undefined,
       timestamp: event.timestamp,
-      role: message.role,
+      role: convertedRole,
       content: '',
       model: message.model,
     }

@@ -118,14 +118,14 @@ participants:
 
 timeline:
   - type: message
-    role: user
+    role: human
     speaker: Alice
     timestamp: "2026-02-15T06:13:50.514Z"
     content: |
       Message content...
 
   - type: message
-    role: assistant
+    role: agent
     speaker: Claude
     timestamp: "2026-02-15T06:14:05.123Z"
     model: claude-sonnet-4-6

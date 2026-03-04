@@ -30,7 +30,7 @@ describe('LogParser', () => {
     const result = parser.parseContent(SAMPLE_SESSION)
 
     const userMsg = result.messages[0]
-    expect(userMsg.role).toBe('user')
+    expect(userMsg.role).toBe('human')
     expect(userMsg.content).toBe('Hello')
   })
 
@@ -39,7 +39,7 @@ describe('LogParser', () => {
     const result = parser.parseContent(SAMPLE_SESSION)
 
     const assistantMsg = result.messages[1]
-    expect(assistantMsg.role).toBe('assistant')
+    expect(assistantMsg.role).toBe('agent')
     expect(assistantMsg.content).toBe('Hi there!')
     expect(assistantMsg.toolCall).toEqual({
       id: 'call1',

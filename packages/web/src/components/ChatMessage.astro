@@ -29,7 +29,7 @@ const {
 const authorLower = author.toLowerCase()
 const isAgent = isUser !== undefined
   ? !isUser
-  : authorLower.includes('agent') || authorLower.includes('assistant')
+  : authorLower.includes('agent')
 
 // Use a fresh Marked instance to avoid inheriting any globally-registered
 // extensions (e.g. the link renderer registered in Footer.astro).
@@ -63,7 +63,7 @@ const htmlContent = await md.parse(content)
     isFirstInGroup={isFirstInGroup}
     avatarColorIndex={avatarColorIndex}
   />
-  <div class:list={['message-body', isAgent ? 'body-agent' : 'body-user']}>
+  <div class:list={['message-body', isAgent ? 'body-agent' : 'body-human']}>
     <!-- set:html content is trusted (session logs); :global() selectors below
          target the injected elements that won't carry Astro's scoping attr. -->
     <div class="message-content prose" set:html={htmlContent} />
@@ -98,13 +98,13 @@ const htmlContent = await md.parse(content)
   }
 
   .body-agent {
-    background-color: var(--assistant-msg-bg);
-    border: 1px solid var(--assistant-msg-border);
+    background-color: var(--agent-msg-bg);
+    border: 1px solid var(--agent-msg-border);
   }
 
-  .body-user {
-    background-color: var(--user-msg-bg);
-    border: 1px solid var(--user-msg-border);
+  .body-human {
+    background-color: var(--human-msg-bg);
+    border: 1px solid var(--human-msg-border);
   }
 
   .message-content {
