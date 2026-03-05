@@ -20,6 +20,8 @@ interface Props {
 const { title, description, channel, model, date, messageCount, regularMessageCount, showProcessByDefault = false, ogImageUrl } = Astro.props;
 const config = await getProjectConfig();
 const siteTitle = config.template?.options?.title || 'chats-share';
+const siteSubtitle = config.template?.options?.subtitle || '';
+const siteSuffix = siteSubtitle ? `${siteTitle} - ${siteSubtitle}` : siteTitle;
 const pageDescription = description || config.template?.options?.description || undefined;
 ---
 
@@ -29,10 +31,10 @@ const pageDescription = description || config.template?.options?.description || 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     {pageDescription && <meta name="description" content={pageDescription} />}
-    <title>{title} | {siteTitle}</title>
+    <title>{title} | {siteSuffix}</title>
     <link rel="canonical" href={Astro.url.href} />
     <meta property="og:type" content="article" />
-    <meta property="og:title" content={`${title} | ${siteTitle}`} />
+    <meta property="og:title" content={`${title} | ${siteSuffix}`} />
     {pageDescription && <meta property="og:description" content={pageDescription} />}
     <meta property="og:url" content={Astro.url.href} />
     {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}

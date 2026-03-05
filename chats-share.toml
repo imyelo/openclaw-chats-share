@@ -4,6 +4,6 @@ out_dir = "dist"
 
 [template.options]
 title = "chats-share"
-subtitle = "// openclaw conversation archive"
+subtitle = "the conversations bewteen me and my ai agent"
 description = "OpenClaw Chats Share - A place for sharing and exploring AI chat conversations."
 footer = "powered by [@imyelo](https://github.com/imyelo) &times; [@lambda610](https://github.com/lambda610)"
