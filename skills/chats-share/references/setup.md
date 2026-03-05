@@ -23,9 +23,12 @@ Note the resulting `{owner}/{repoName}` for later steps.
 ```bash
 npx create-openclaw-chats-share {repoName}
 cd {repoName}
-```
 
-This creates a git repo with `chats-share.toml`, a `chats/` directory, and a GitHub Actions workflow for Pages deployment.
+# Initialize a fresh git repo (avoid inheriting parent directory's .git)
+git init
+git add .
+git commit -m "feat: scaffold {repoName}"
+```
 
 ### 4. Configure the Site URL
 
