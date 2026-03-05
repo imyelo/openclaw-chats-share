@@ -1,10 +1,12 @@
 title: Building a Conversation Sharing Tool
 date: 2026-02-19
+channel: Discord
 sessionId: sess_1029384756
 model: MiniMax-M2.5
 totalMessages: 10
 visibility: public
 defaultShowProcess: true
+description: A planning session for building an AI conversation sharing tool — covering Astro-based static site generation, Markdown rendering, error panels, and session event display.
 participants:
   Human 1:
     role: human

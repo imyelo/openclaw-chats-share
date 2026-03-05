@@ -30,7 +30,7 @@ interface Props {
 }
 
 const { chat } = Astro.props;
-const { title, channel, model, date, totalMessages, timeline, participants, defaultShowProcess = false } = chat;
+const { title, description, channel, model, date, totalMessages, timeline, participants, defaultShowProcess = false } = chat;
 const displayTitle = title || '';
 
 const showProcessByDefault = defaultShowProcess;
@@ -118,6 +118,7 @@ messages.forEach(msg => {
 
 <ChatLayout
   title={displayTitle}
+  description={description || undefined}
   channel={channel}
   model={model}
   date={date}

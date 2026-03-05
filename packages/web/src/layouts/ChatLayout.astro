@@ -2,10 +2,12 @@
 import Footer from '../components/Footer.astro';
 import MemoryBackground from '../components/MemoryBackground.astro';
 import DecorativeCorners from '../components/DecorativeCorners.astro';
+import { getProjectConfig } from '../lib/config.js';
 import '../styles/global.css';
 
 interface Props {
   title: string
+  description?: string
   channel?: string
   model?: string
   date?: string
@@ -14,7 +16,10 @@ interface Props {
   showProcessByDefault?: boolean
 }
 
-const { title, channel, model, date, messageCount, regularMessageCount, showProcessByDefault = false } = Astro.props;
+const { title, description, channel, model, date, messageCount, regularMessageCount, showProcessByDefault = false } = Astro.props;
+const config = await getProjectConfig();
+const siteTitle = config.template?.options?.title || 'chats-share';
+const siteDescription = description || config.template?.options?.description;
 ---
 
 <!doctype html>
@@ -22,8 +27,8 @@ const { title, channel, model, date, messageCount, regularMessageCount, showProc
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content={`${model} Chats Share - ${title}`} />
-    <title>{title} | chats-share</title>
+    <meta name="description" content={siteDescription} />
+    <title>{title} | {siteTitle}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
