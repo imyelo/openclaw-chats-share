@@ -21,7 +21,10 @@ Share AI agent conversations as public web pages.
 ### 1. Setup Check
 
 - Detect agent type; load project dir + site URL using the agent profile
-- If project not configured → [First-Time Setup](references/setup.md)
+- If project not configured locally, ask the user:
+  - **"Do you have an existing chats-share repo?"**
+  - Yes → [Existing Repo, New Environment](references/setup.md#existing-repo-new-environment)
+  - No (Default) → [First-Time Setup](references/setup.md#first-time-setup)
 
 ### 2. Locate Session
 

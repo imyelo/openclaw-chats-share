@@ -4,30 +4,36 @@
 
 A monorepo for sharing OpenClaw conversation history as static websites. Trigger a share command in your chat channel and get a permanent, publicly accessible page — automatically built and deployed via GitHub Pages.
 
+## Quick Start
+
+Copy and Paste this into your agent chat:
+
+```
+Read https://clawhub.ai/imyelo/chats-share and install the chats-share skill,
+then run first-time setup for me.
+```
+
+## What the Agent Does
+
+The agent will scaffold a private GitHub repo, configure `chats-share.toml` with your Pages URL, push the initial commit, enable GitHub Actions as the Pages source, and register the project so `/chats-share` works immediately. For the full step-by-step, see [skills/chats-share/references/setup.md](skills/chats-share/references/setup.md).
+
 ## How It Works
 
 ```
-/chats-share {title}
+/chats-share
     │
     ▼
 OpenClaw Skill
-    │  1. Extract full message history from session file
-    │  2. Choose implementation mode (CLI or Agent Skills)
-    │  3. Generate title suggestion (user confirms or edits)
-    │  4. Sanitize sensitive data (optional)
+    │  1. Locate and confirm the session to export
+    │  2. Extract message history
+    │  3. Populate metadata (title, participants, description)
+    │  4. Redact sensitive data
     │  5. Write YAML to your data repo
     │  6. Push to new branch → create PR
     ▼
 GitHub Pages
     └── https://your-domain/share/{slug}
 ```
-
-### Implementation Modes
-
-The Skill supports two processing modes:
-
-1. **CLI Mode** (default) — Fast, handles large files reliably
-2. **Agent Skills Mode** — Flexible for custom transformations during parse
 
 ### Branch-Based Workflow
 
@@ -46,7 +52,7 @@ This repo is a **public template**. Your actual chat data lives in a separate **
 
 ### `openclaw-chats-share` (CLI)
 
-Parses OpenClaw `sessions/{uuid}.jsonl` raw JSONL files and generates Markdown output.
+Parses OpenClaw `sessions/{uuid}.jsonl` raw JSONL files and generates YAML output.
 
 ```bash
 npx openclaw-chats-share parse <sessions/{uuid}.jsonl> [-o output.yaml]
@@ -54,12 +60,12 @@ npx openclaw-chats-share parse <sessions/{uuid}.jsonl> [-o output.yaml]
 
 ### `openclaw-chats-share-web`
 
-Astro-based static site generator. Renders chat Markdown files into shareable pages and deploys to GitHub Pages.
+Astro-based static site generator. Renders chat YAML files into shareable pages.
 
 ```bash
 npx openclaw-chats-share-web dev     # local dev server
 npx openclaw-chats-share-web build   # build static site
-npx openclaw-chats-share-web deploy  # build + deploy to GitHub Pages
+npx openclaw-chats-share-web preview # preview built site locally
 ```
 
 ### `create-openclaw-chats-share`
@@ -234,14 +240,14 @@ bun run version
 
 ```
 packages/
-  cli/     - openclaw-chats-share CLI (session log parser + Markdown generator)
+  cli/     - openclaw-chats-share CLI (session log parser + YAML generator)
   web/     - openclaw-chats-share-web (Astro static site)
     src/
       components/  - MessageHeader.astro, ChatMessage.astro, CollapsibleMessage.tsx, Footer.astro, MemoryBackground.astro
       lib/         - chats.ts, config.ts, config-schema.ts
-      pages/       - index.astro, chats/[slug].astro
+      pages/       - index.astro, share/[slug].astro
   create/  - create-openclaw-chats-share scaffolding tool
-chats/     - Demo Markdown chat files
+chats/     - Demo YAML chat files
 docs/      - Project documentation
 skills/    - OpenClaw Skill definitions
 ```
