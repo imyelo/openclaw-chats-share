@@ -1,5 +1,15 @@
 # openclaw-chats-share-web
 
+## 0.7.0
+
+### Minor Changes
+
+- Add configurable subtitle to page titles and meta tags
+
+  - Add `subtitle` option to `chats-share.toml` template options
+  - Subtitle appears in page titles and meta descriptions
+  - Also pins Astro dependency to 5.18.0 for stability
+
 ## 0.6.0
 
 ### Minor Changes

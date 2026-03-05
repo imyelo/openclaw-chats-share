@@ -1,6 +1,6 @@
 {
   "name": "openclaw-chats-share-web",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "type": "module",
   "bin": {
     "openclaw-chats-share-web": "bin/web.js"
