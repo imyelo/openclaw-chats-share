@@ -12,7 +12,7 @@
     "lint": "biome lint .",
     "test": "bun --bun test",
     "prepare": "husky",
-    "release": "bun run test && bunx changeset publish",
+    "release": "bun run build && bun run test && bunx changeset publish",
     "prepublish": "bun run build",
     "changeset": "changeset",
     "version": "bunx changeset version",
