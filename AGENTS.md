@@ -114,6 +114,7 @@ See [docs/chats-share-data-format.md](/docs/chats-share-data-format.md) for the 
 
 - See [docs/openclaw-session-log-format-search.md](/docs/openclaw-session-log-format-search.md) for detailed event schemas.
 - See [docs/chats-share-data-format.md](/docs/chats-share-data-format.md) for complete frontmatter fields and content format.
+- See [docs/cli-platform-extension.md](/docs/cli-platform-extension.md) for the `--platform` flag, the `Platform` interface, and how to add new platform parsers.
 
 ---
 
