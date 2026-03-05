@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1a1a1a" stroke-width="0.5"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#0a0a0a"/>
+  <rect width="1200" height="630" fill="url(#grid)" opacity="0.6"/>
+
+  <!-- Amber accent bar -->
+  <rect x="0" y="0" width="8" height="630" fill="#d4a853"/>
+
+  <!-- Title lines -->
+  <text x="90" y="200" font-family="monospace" font-size="40" font-weight="500" fill="#e8e6e3">Building a Conversation Sharing Tool</text>
+
+  <!-- Meta line -->
+  <text x="90" y="284" font-family="monospace" font-size="22" fill="#5c5958">Discord  ◆  MiniMax-M2.5  ◆  2026-02-19</text>
+
+  <!-- Site name (bottom-right) -->
+  <text x="1128" y="558" text-anchor="end" font-family="monospace" font-size="20" fill="#d4a853">// chats-share</text>
+</svg>
