@@ -12,11 +12,14 @@ title: {descriptive title}
 description: {one-sentence summary}
 date: {YYYY-MM-DD}
 sessionId: {session-id}
+channel: {platform name, e.g. discord, telegram; omit if not applicable}
 model: {first model used}
 totalMessages: {count of user+assistant message events; exclude toolResult}
 totalTokens: {sum of usage.totalTokens across all messages; omit if unavailable}
+tags: []                    # omit if no tags
 visibility: public
 defaultShowProcess: false
+cover: {explicit OG image URL; omit to use auto-generated SVG card}
 participants:
   {DisplayName}:
     role: human
@@ -43,18 +46,20 @@ All events also have `timestamp`.
 
 ### Message Type
 
+Thinking blocks and tool calls go in `process[]`. Text content goes in `content`. All fields are optional; include only what the original message contains.
+
 ```yaml
 - type: message
   role: human | agent
   speaker: {DisplayName}
   timestamp: {ISO 8601}
   model: {model-name}         # assistant only, if available
-  thinking: |                 # assistant only, if model reasoning was captured
-    {reasoning text verbatim}
-  content: |
-    {message text verbatim}
-  toolCalls:                  # assistant only, if tools were called
-    - id: {tool-call-id}
+  process:                    # assistant only; one entry per block
+    - type: thinking          # reasoning block
+      content: |
+        {reasoning text verbatim}
+    - type: tool_call         # tool invocation
+      id: {tool-call-id}
       name: {tool-name}
       arguments:
         {key}: {value}        # structured object, verbatim from session
@@ -62,12 +67,14 @@ All events also have `timestamp`.
         content: |
           {result text verbatim}
         isError: false
+  content: |                  # message text; omit if absent
+    {message text verbatim}
   images:                     # if message contains images
     - mimeType: image/png
       data: {base64}
 ```
 
-Use YAML block scalar (`|`) for any multiline string field (`thinking`, `content`, result `content`). Single-line strings may use plain or quoted YAML style.
+Use YAML block scalar (`|`) for any multiline string field (`content`, result `content`). Single-line strings may use plain or quoted YAML style.
 
 ## File Naming
 
@@ -120,13 +127,13 @@ timeline:
     speaker: Claude
     timestamp: "2026-03-03T14:02:00.000Z"
     model: claude-sonnet-4-6
-    thinking: |
-      The issue is likely in how the drain event interacts with the write queue.
-      Let me look at the emitter source to confirm.
-    content: |
-      The problem is on line 17 — you're registering the listener inside the loop...
-    toolCalls:
-      - id: tc_001
+    process:
+      - type: thinking
+        content: |
+          The issue is likely in how the drain event interacts with the write queue.
+          Let me look at the emitter source to confirm.
+      - type: tool_call
+        id: tc_001
         name: read
         arguments:
           file_path: src/emitter.ts
@@ -137,4 +144,6 @@ timeline:
               // ...42 lines
             }
           isError: false
+    content: |
+      The problem is on line 17 — you're registering the listener inside the loop...
 ```

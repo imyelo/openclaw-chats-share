@@ -44,6 +44,8 @@ The CLI auto-fills structural fields. The Skill's job is to fill in the human-fa
 | `participants` | Generic role names (`user`, `assistant`) | Ask user for display names → rename keys |
 | `title` | `'Session Export'` (generic) | Skim generated YAML → suggest → confirm |
 | `description` | _(absent)_ | Write one-sentence summary → confirm |
+| `channel` | _(absent)_ | Ask user — set to platform name (e.g. `discord`) if applicable; omit otherwise |
+| `cover` | _(absent)_ | Skip (user adds custom OG image URL manually later) |
 | `tags` | _(absent)_ | Skip (user adds manually later) |
 
 ### 5. Redact
