@@ -1,5 +1,18 @@
 # openclaw-chats-share
 
+## 0.4.0
+
+### Minor Changes
+
+- Add CLI event filtering flags, OG image support, and custom page configuration
+
+  - CLI: Add `--include-process` flag to filter timeline events by type (thinking, tool_call, tool_result, message, session, model_change, compaction, custom)
+  - CLI: Add `--exclude-process` option to exclude specific event types from output
+  - Web: Add OG image support with auto-generated SVG cover cards for social sharing
+  - Web: Add version display to generated footer
+  - Web: Add support for custom page descriptions and site title via config
+  - Docs: Add CLI platform extension documentation
+
 ## 0.3.0
 
 ### Minor Changes
