@@ -24,9 +24,15 @@ gh repo create {repoName} --private
 
 Note the resulting `{owner}/{repoName}` for later steps.
 
-### 3. Scaffold the Project
+### 3. Choose a Local Directory
+
+Ask the user where they want the project stored locally. Use this as `{localDir}` (absolute path, e.g. `~/projects/{repoName}`). If the user has no preference, suggest the platform default (see platform profile), or fall back to `~/{repoName}`.
+
+### 4. Scaffold the Project
 
 ```bash
+mkdir -p "$(dirname {localDir})"
+cd "$(dirname {localDir})"
 npx create-openclaw-chats-share {repoName}
 cd {localDir}
 ```

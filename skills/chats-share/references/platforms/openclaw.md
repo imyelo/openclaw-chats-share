@@ -7,6 +7,7 @@ Read project dir from `~/.openclaw/workspace/TOOLS.md`:
 2. Extract the `- Project: {path}` value
 
 If not found → [First-Time Setup](../setup.md)
+If not found → [First-Time Setup](../setup.md) — suggested default for `{localDir}`: `~/.openclaw/workspace/{repoName}`
 
 Also read `site` URL from `{projectDir}/chats-share.toml`.
 
