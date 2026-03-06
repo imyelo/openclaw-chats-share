@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro'
 import { type ChatWithContent, getAllChatsWithContent } from '../../../lib/chats.js'
 import { getProjectConfig } from '../../../lib/config.js'
-import { escapeXml, wrapText, buildSvgBase, SVG_THEME } from '../../../lib/svg-utils.js'
+import { buildSvgBase, escapeXml, SVG_THEME, wrapText } from '../../../lib/svg-utils.js'
 
 export async function getStaticPaths() {
   const chats = await getAllChatsWithContent()

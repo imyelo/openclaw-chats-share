@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro'
 import { getProjectConfig } from '../lib/config.js'
-import { escapeXml, buildSvgBase, SVG_THEME } from '../lib/svg-utils.js'
+import { buildSvgBase, escapeXml, SVG_THEME } from '../lib/svg-utils.js'
 
 export const GET: APIRoute = async () => {
   const config = await getProjectConfig()
