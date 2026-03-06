@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import { execSync } from 'node:child_process'
 import { cpSync, mkdirSync } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { basename, dirname, isAbsolute, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
 
-const { positionals } = parseArgs({
+const { values, positionals } = parseArgs({
   options: {
     dir: { type: 'string', short: 'd' },
   },
@@ -13,7 +13,16 @@ const { positionals } = parseArgs({
 })
 
 const [projectName] = positionals
-const targetDir = join(process.cwd(), projectName || 'my-chats-project')
+const { dir } = values
+
+// --dir overrides the output location; it may be absolute or relative to cwd.
+// When omitted, fall back to <cwd>/<projectName|my-chats-project>.
+const targetDir = dir
+  ? (isAbsolute(dir) ? dir : join(process.cwd(), dir))
+  : join(process.cwd(), projectName || 'my-chats-project')
+
+// Human-readable label used in the commit message and the cd hint.
+const displayName = projectName || basename(targetDir)
 
 console.log(`Creating project in: ${targetDir}`)
 
@@ -54,7 +63,7 @@ try {
   execSync('git init', opts)
   try {
     execSync('git add .', opts)
-    execSync(`git commit -m "feat: scaffold ${projectName || 'my-chats-project'}"`, opts)
+    execSync(`git commit -m "feat: scaffold ${displayName}"`, opts)
   } catch {
     console.warn('Warning: git init succeeded but initial commit failed (git identity may not be configured).')
     console.warn('Run: git add . && git commit -m "feat: scaffold" inside the project directory.')
@@ -64,6 +73,6 @@ try {
 }
 
 console.log('Project created!')
-console.log(`cd ${projectName || 'my-chats-project'}`)
+console.log(`cd ${targetDir}`)
 console.log('bun install')
 console.log('bun run dev')

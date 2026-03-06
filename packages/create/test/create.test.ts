@@ -95,4 +95,46 @@ describe('create-openclaw-chats-share', () => {
     const snapshot = await getDirectorySnapshot(join(tempDir, 'my-chats-project'))
     expect(snapshot).toMatchSnapshot()
   })
+
+  describe('--dir flag', () => {
+    it('should create project at a relative --dir path', async () => {
+      const { exitCode } = await runCreate(tempDir, ['my-project', '--dir', 'custom-output'])
+      expect(exitCode).toBe(0)
+      const snapshot = await getDirectorySnapshot(join(tempDir, 'custom-output'))
+      expect(snapshot).toMatchSnapshot()
+    })
+
+    it('should create project at an absolute --dir path', async () => {
+      const absTarget = join(tempDir, 'abs-target')
+      const { exitCode } = await runCreate(tempDir, ['my-project', '--dir', absTarget])
+      expect(exitCode).toBe(0)
+      const snapshot = await getDirectorySnapshot(absTarget)
+      expect(snapshot).toMatchSnapshot()
+    })
+
+    it('should use projectName in commit message when --dir differs from projectName', async () => {
+      const { exitCode, stderr } = await runCreate(tempDir, ['my-project', '--dir', 'custom-output'])
+      const projectDir = join(tempDir, 'custom-output')
+      expect(exitCode).toBe(0)
+      expect(stderr).not.toContain('Warning:')
+      const log = execSync('git log --oneline', { cwd: projectDir }).toString().trim()
+      expect(log).toMatch(/feat: scaffold my-project/)
+    })
+
+    it('should use basename of --dir in commit message when no projectName given', async () => {
+      const { exitCode, stderr } = await runCreate(tempDir, ['--dir', 'custom-output'])
+      const projectDir = join(tempDir, 'custom-output')
+      expect(exitCode).toBe(0)
+      expect(stderr).not.toContain('Warning:')
+      const log = execSync('git log --oneline', { cwd: projectDir }).toString().trim()
+      expect(log).toMatch(/feat: scaffold custom-output/)
+    })
+
+    it('should not create a directory at the positional name when --dir is used', async () => {
+      await runCreate(tempDir, ['my-project', '--dir', 'custom-output'])
+      const { existsSync } = await import('node:fs')
+      expect(existsSync(join(tempDir, 'my-project'))).toBe(false)
+      expect(existsSync(join(tempDir, 'custom-output'))).toBe(true)
+    })
+  })
 })

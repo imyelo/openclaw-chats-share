@@ -31,13 +31,11 @@ Ask the user where they want the project stored locally. Use this as `{localDir}
 ### 4. Scaffold the Project
 
 ```bash
-mkdir -p "$(dirname {localDir})"
-cd "$(dirname {localDir})"
-npx create-openclaw-chats-share {repoName}
-cd {localDir}
+npx create-openclaw-chats-share {repoName} --dir {localDir}
 ```
 
 This scaffolds `chats-share.toml`, a `chats/` directory, a GitHub Actions workflow for Pages deployment, and initializes a git repository with an initial commit.
+`{repoName}` is used as the project label in the initial commit message; `--dir` sets the exact output path regardless of whether it matches the repo name.
 
 ### 5. Configure the Site URL
 
